@@ -76,7 +76,7 @@ class ValidateAfterMissingAttributesTestTask
   end
 end
 
-class ValidateAfterTypeTestTask
+class ValidateAfterInvalidTypeTestTask
   extend ActionLogic::ActionTask
 
   validates_after Validations::ALL_VALIDATIONS
@@ -90,6 +90,66 @@ class ValidateAfterTypeTestTask
     context.array_test   = nil
     context.symbol_test  = nil
     context.nil_test     = 1
+  end
+end
+
+class ValidateAfterCustomTypeTestTask
+  extend ActionLogic::ActionTask
+
+  validates_after :custom_type => { :type => :customtype1, :presence => true }
+
+  def call(context)
+    context.custom_type = CustomType1.new
+  end
+end
+
+class ValidateAfterInvalidCustomTypeTestTask
+  extend ActionLogic::ActionTask
+
+  validates_after :custom_type => { :type => :customtype2, :presence => true }
+
+  def call(context)
+    context.custom_type = CustomType1.new
+  end
+end
+
+class ValidateAfterPresenceTestTask
+  extend ActionLogic::ActionTask
+
+  validates_after :integer_test => { :presence => true }
+
+  def call(context)
+    context.integer_test = 1
+  end
+end
+
+class ValidateAfterInvalidPresenceTestTask
+  extend ActionLogic::ActionTask
+
+  validates_after :integer_test => { :presence => true }
+
+  def call(context)
+    context.integer_test = nil
+  end
+end
+
+class ValidateAfterCustomPresenceTestTask
+  extend ActionLogic::ActionTask
+
+  validates_after :array_test => { :presence => ->(array_test) { array_test.any? } }
+
+  def call(context)
+    context.array_test = [1]
+  end
+end
+
+class ValidateAfterInvalidCustomPresenceTestTask
+  extend ActionLogic::ActionTask
+
+  validates_after :array_test => { :presence => ->(array_test) { array_test.any? } }
+
+  def call(context)
+    context.array_test = []
   end
 end
 

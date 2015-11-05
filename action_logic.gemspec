@@ -10,9 +10,9 @@ Gem::Specification.new do |s|
   s.email = 'rick.winfrey@gmail.com'
   s.files = ["lib/action_logic.rb"]
   s.require_paths = ["lib"]
-  s.homepage = 'https://github.com/rewinfrey/action_logic'
+  s.homepage = 'https://github.com/bashrw/action_logic'
   s.license = 'MIT'
 
-  s.add_development_dependency("rspec", "~> 3.3.0")
-  s.add_development_dependency("pry", "~> 0.10.3")
+  s.add_development_dependency("rspec", "~> 3.3")
+  s.add_development_dependency("pry", "~> 0.10")
 end
