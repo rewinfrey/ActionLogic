@@ -33,8 +33,8 @@ PLATFORMS
 
 DEPENDENCIES
   action_logic!
-  pry (~> 0.10.3)
-  rspec (~> 3.3.0)
+  pry (~> 0.10)
+  rspec (~> 3.3)
 
 BUNDLED WITH
    1.10.6
