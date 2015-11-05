@@ -53,7 +53,7 @@ end
 class ValidateBeforePresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_before :integer_test => { :presence => true }
+  validates_before Validations::PRESENCE_VALIDATION
 
   def call(context)
   end
@@ -66,7 +66,7 @@ end
 class ValidateBeforeCustomPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_before :array_test => { :presence => ->(array_test) { array_test.any? } }
+  validates_before Validations::CUSTOM_PRESENCE_VALIDATION
 
   def call(context)
   end
@@ -79,7 +79,7 @@ end
 class ValidateBeforeCustomTypeTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_before :custom_type => { :type => :customtype1, :presence => true }
+  validates_before Validations::CUSTOM_TYPE_VALIDATION1
 
   def call(context)
   end
@@ -147,7 +147,7 @@ end
 class ValidateAfterCustomTypeTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after :custom_type => { :type => :customtype1, :presence => true }
+  validates_after Validations::CUSTOM_TYPE_VALIDATION1
 
   def call(context)
     context.custom_type = CustomType1.new
@@ -161,7 +161,7 @@ end
 class ValidateAfterInvalidCustomTypeTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after :custom_type => { :type => :customtype2, :presence => true }
+  validates_after Validations::CUSTOM_TYPE_VALIDATION2
 
   def call(context)
     context.custom_type = CustomType1.new
@@ -175,7 +175,7 @@ end
 class ValidateAfterPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after :integer_test => { :presence => true }
+  validates_after Validations::PRESENCE_VALIDATION
 
   def call(context)
     context.integer_test = 1
@@ -189,7 +189,7 @@ end
 class ValidateAfterInvalidPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after :integer_test => { :presence => true }
+  validates_after Validations::PRESENCE_VALIDATION
 
   def call(context)
     context.integer_test = nil
@@ -203,7 +203,7 @@ end
 class ValidateAfterCustomPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after :array_test => { :presence => ->(array_test) { array_test.any? } }
+  validates_after Validations::CUSTOM_PRESENCE_VALIDATION
 
   def call(context)
     context.array_test = [1]
@@ -217,7 +217,7 @@ end
 class ValidateAfterInvalidCustomPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after :array_test => { :presence => ->(array_test) { array_test.any? } }
+  validates_after Validations::CUSTOM_PRESENCE_VALIDATION
 
   def call(context)
     context.array_test = []

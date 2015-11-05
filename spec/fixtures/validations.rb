@@ -1,3 +1,5 @@
+require 'fixtures/custom_types'
+
 class Validations
   ALL_VALIDATIONS = { :integer_test => { :type => :integer, :presence => true },
                       :float_test   => { :type => :float, :presence => true },
@@ -25,4 +27,16 @@ class Validations
                        :array_test => [],
                        :symbol_test => :symbol,
                        :nil_test => nil }
+
+  CUSTOM_TYPE_VALIDATION1 = { :custom_type => { :type => :customtype1, :presence => true } }
+
+  CUSTOM_TYPE_ATTRIBUTES1 = { :custom_type => CustomType1.new }
+
+  CUSTOM_TYPE_VALIDATION2 = { :custom_type => { :type => :customtype2, :presence => true } }
+
+  CUSTOM_TYPE_ATTRIBUTES2 = { :custom_type => CustomType2.new }
+
+  PRESENCE_VALIDATION = { :integer_test => { :presence => true } }
+
+  CUSTOM_PRESENCE_VALIDATION = { :array_test => { :presence => ->(array_test) { array_test.any? } } }
 end
