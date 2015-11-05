@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_logic (0.0.1)
+    action_logic (0.0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -32,7 +32,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  active_logic!
+  action_logic!
   pry (~> 0.10.3)
   rspec (~> 3.3.0)
 
