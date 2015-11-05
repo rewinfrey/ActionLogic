@@ -51,11 +51,11 @@ module ActionLogic
 
       describe "custom types" do
         it "allows validation against custom defined types" do
-          expect { ValidateBeforeCustomTypeTestUseCase.execute(:custom_type => CustomType1.new) }.to_not raise_error
+          expect { ValidateBeforeCustomTypeTestUseCase.execute(Validations::CUSTOM_TYPE_ATTRIBUTES1) }.to_not raise_error
         end
 
         it "raises error if context has custom type attribute but value is not correct custom type" do
-          expect { ValidateBeforeCustomTypeTestUseCase.execute(:custom_type => CustomType2.new) }.to\
+          expect { ValidateBeforeCustomTypeTestUseCase.execute(Validations::CUSTOM_TYPE_ATTRIBUTES2) }.to\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
