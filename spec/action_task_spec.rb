@@ -20,7 +20,7 @@ module ActionLogic
     describe "before validations" do
       describe "required attributes and type validation" do
         it "does not raise error if context has required keys and values are of the correct type" do
-          expect { ValidateBeforeTestTask.execute(Validations::VALID_ATTRIBUTES) }.to_not raise_error
+          expect { ValidateBeforeTestTask.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
         end
 
         it "raises error if context is missing required keys" do
@@ -29,7 +29,7 @@ module ActionLogic
         end
 
         it "raises error if context has required keys but values are not of correct type" do
-          expect { ValidateBeforeTestTask.execute(Validations::INVALID_ATTRIBUTES) }.to\
+          expect { ValidateBeforeTestTask.execute(Constants::INVALID_ATTRIBUTES) }.to\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
@@ -144,6 +144,24 @@ module ActionLogic
           expect { MissingErrorHandlerTestTask.execute() }.to\
             raise_error(RuntimeError)
         end
+      end
+    end
+
+    describe "fail!" do
+      it "returns the context with the correct status and failure message" do
+        result = FailureTestTask.execute()
+
+        expect(result.status).to eq(:failure)
+        expect(result.message).to eq(Constants::FAILURE_MESSAGE)
+      end
+    end
+
+    describe "halt!" do
+      it "returns the context with the correct status and halt message" do
+        result = HaltTestTask.execute()
+
+        expect(result.status).to eq(:halted)
+        expect(result.message).to eq(Constants::HALT_MESSAGE)
       end
     end
   end

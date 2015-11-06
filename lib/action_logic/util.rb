@@ -20,8 +20,15 @@ module ActionLogic
        :validate_presence!]
     end
 
+    def break?(context)
+      context.status == :failure ||
+        context.status == :halted
+    end
+
     def around(params, &blk)
       context = make_context(params)
+
+      return context if break?(context)
       default_validations
       execution_context = self.new
 
