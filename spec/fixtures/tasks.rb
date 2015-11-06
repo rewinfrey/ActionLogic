@@ -153,3 +153,51 @@ class ValidateAfterInvalidCustomPresenceTestTask
   end
 end
 
+class ErrorHandlerTestTask
+  extend ActionLogic::ActionTask
+
+  def call(context)
+    raise
+  end
+
+  def error(e, context)
+    context.e = e
+    context.context = context
+  end
+end
+
+class ErrorHandlerInvalidAttributesBeforeTestTask
+  extend ActionLogic::ActionTask
+
+  validates_before Validations::ALL_VALIDATIONS
+
+  def call(context)
+    raise
+  end
+
+  def error(e, context)
+    context.error = "error"
+  end
+end
+
+class ErrorHandlerInvalidAttributesAfterTestTask
+  extend ActionLogic::ActionTask
+
+  validates_after Validations::ALL_VALIDATIONS
+
+  def call(context)
+    raise
+  end
+
+  def error(e, context)
+    context.error = "error"
+  end
+end
+
+class MissingErrorHandlerTestTask
+  extend ActionLogic::ActionTask
+
+  def call(context)
+    raise
+  end
+end

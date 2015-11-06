@@ -118,5 +118,33 @@ module ActionLogic
         end
       end
     end
+
+    describe "error handler" do
+      context "with error handler defined" do
+        it "does not catch exceptions due to before validation errors" do
+          expect { ErrorHandlerInvalidAttributesBeforeTestTask.execute() }.to\
+            raise_error(ActionLogic::MissingAttributeError)
+        end
+
+        it "does not catch exceptions due to after validation errors" do
+          expect { ErrorHandlerInvalidAttributesAfterTestTask.execute() }.to\
+            raise_error(ActionLogic::MissingAttributeError)
+        end
+
+        it "the error and context are passed to the error handler" do
+          result = ErrorHandlerTestTask.execute()
+
+          expect(result.e).to be_a(RuntimeError)
+          expect(result.context).to be_a(ActionLogic::ActionContext)
+        end
+      end
+
+      context "without error handler defined" do
+        it "raises original exception if error handler is not defined" do
+          expect { MissingErrorHandlerTestTask.execute() }.to\
+            raise_error(RuntimeError)
+        end
+      end
+    end
   end
 end
