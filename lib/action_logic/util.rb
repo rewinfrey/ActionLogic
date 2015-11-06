@@ -27,7 +27,15 @@ module ActionLogic
 
       validations.each { |validation| self.send(validation, context, @validates_before) }
 
-      context = blk.call(context, execution_context)
+      begin
+        context = blk.call(context, execution_context)
+      rescue => e
+        if execution_context.respond_to?(:error)
+          execution_context.error(e, context)
+        else
+          raise e
+        end
+      end
 
       validations.each { |validation| self.send(validation, context, @validates_after) }
 
