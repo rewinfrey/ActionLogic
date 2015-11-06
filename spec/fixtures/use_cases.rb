@@ -1,6 +1,6 @@
 require 'action_logic'
 require 'fixtures/tasks'
-require 'fixtures/validations'
+require 'fixtures/constants'
 
 class SimpleTestUseCase
   extend ActionLogic::ActionUseCase
@@ -40,7 +40,7 @@ end
 class ValidateBeforeTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_before Validations::ALL_VALIDATIONS
+  validates_before Constants::ALL_VALIDATIONS
 
   def call(context)
   end
@@ -53,7 +53,7 @@ end
 class ValidateBeforePresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_before Validations::PRESENCE_VALIDATION
+  validates_before Constants::PRESENCE_VALIDATION
 
   def call(context)
   end
@@ -66,7 +66,7 @@ end
 class ValidateBeforeCustomPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_before Validations::CUSTOM_PRESENCE_VALIDATION
+  validates_before Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call(context)
   end
@@ -79,7 +79,7 @@ end
 class ValidateBeforeCustomTypeTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_before Validations::CUSTOM_TYPE_VALIDATION1
+  validates_before Constants::CUSTOM_TYPE_VALIDATION1
 
   def call(context)
   end
@@ -92,7 +92,7 @@ end
 class ValidateAfterTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::ALL_VALIDATIONS
+  validates_after Constants::ALL_VALIDATIONS
 
   def call(context)
     context.integer_test = 1
@@ -113,7 +113,7 @@ end
 class ValidateAfterMissingAttributesTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::ALL_VALIDATIONS
+  validates_after Constants::ALL_VALIDATIONS
 
   def call(context)
   end
@@ -126,7 +126,7 @@ end
 class ValidateAfterInvalidTypeTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::ALL_VALIDATIONS
+  validates_after Constants::ALL_VALIDATIONS
 
   def call(context)
     context.integer_test = nil
@@ -147,7 +147,7 @@ end
 class ValidateAfterCustomTypeTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::CUSTOM_TYPE_VALIDATION1
+  validates_after Constants::CUSTOM_TYPE_VALIDATION1
 
   def call(context)
     context.custom_type = CustomType1.new
@@ -161,7 +161,7 @@ end
 class ValidateAfterInvalidCustomTypeTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::CUSTOM_TYPE_VALIDATION2
+  validates_after Constants::CUSTOM_TYPE_VALIDATION2
 
   def call(context)
     context.custom_type = CustomType1.new
@@ -175,7 +175,7 @@ end
 class ValidateAfterPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::PRESENCE_VALIDATION
+  validates_after Constants::PRESENCE_VALIDATION
 
   def call(context)
     context.integer_test = 1
@@ -189,7 +189,7 @@ end
 class ValidateAfterInvalidPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::PRESENCE_VALIDATION
+  validates_after Constants::PRESENCE_VALIDATION
 
   def call(context)
     context.integer_test = nil
@@ -203,7 +203,7 @@ end
 class ValidateAfterCustomPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::CUSTOM_PRESENCE_VALIDATION
+  validates_after Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call(context)
     context.array_test = [1]
@@ -217,7 +217,7 @@ end
 class ValidateAfterInvalidCustomPresenceTestUseCase
   extend ActionLogic::ActionUseCase
 
-  validates_after Validations::CUSTOM_PRESENCE_VALIDATION
+  validates_after Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call(context)
     context.array_test = []
@@ -225,6 +225,34 @@ class ValidateAfterInvalidCustomPresenceTestUseCase
 
   def tasks
     []
+  end
+end
+
+class FailureTestUseCase
+  extend ActionLogic::ActionUseCase
+
+  def call(context)
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2,
+     UseCaseFailureTestTask,
+     UseCaseTestTask3]
+  end
+end
+
+class HaltTestUseCase
+  extend ActionLogic::ActionUseCase
+
+  def call(context)
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2,
+     UseCaseHaltTestTask,
+     UseCaseTestTask3]
   end
 end
 
@@ -241,5 +269,29 @@ class UseCaseTestTask2
 
   def call(context)
     context.second = "second"
+  end
+end
+
+class UseCaseTestTask3
+  extend ActionLogic::ActionTask
+
+  def call(context)
+    context.third = "third"
+  end
+end
+
+class UseCaseFailureTestTask
+  extend ActionLogic::ActionTask
+
+  def call(context)
+    context.fail!(Constants::FAILURE_MESSAGE)
+  end
+end
+
+class UseCaseHaltTestTask
+  extend ActionLogic::ActionTask
+
+  def call(context)
+    context.halt!(Constants::HALT_MESSAGE)
   end
 end

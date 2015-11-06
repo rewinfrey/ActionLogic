@@ -1,6 +1,6 @@
 require 'fixtures/custom_types'
 
-class Validations
+class Constants
   ALL_VALIDATIONS = { :integer_test => { :type => :integer, :presence => true },
                       :float_test   => { :type => :float, :presence => true },
                       :string_test  => { :type => :string, :presence => true },
@@ -39,4 +39,8 @@ class Validations
   PRESENCE_VALIDATION = { :integer_test => { :presence => true } }
 
   CUSTOM_PRESENCE_VALIDATION = { :array_test => { :presence => ->(array_test) { array_test.any? } } }
+
+  FAILURE_MESSAGE = "error"
+
+  HALT_MESSAGE = "halt"
 end

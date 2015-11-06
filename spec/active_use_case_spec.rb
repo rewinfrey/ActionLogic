@@ -35,7 +35,7 @@ module ActionLogic
     describe "before validations" do
       describe "required attributes and type validation" do
         it "does not raise error if context has required keys and values are of the correct type" do
-          expect { ValidateBeforeTestUseCase.execute(Validations::VALID_ATTRIBUTES) }.to_not raise_error
+          expect { ValidateBeforeTestUseCase.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
         end
 
         it "raises error if context is missing required keys" do
@@ -44,18 +44,18 @@ module ActionLogic
         end
 
         it "raises error if context has required key but is not of correct type" do
-          expect { ValidateBeforeTestUseCase.execute(Validations::INVALID_ATTRIBUTES) }.to\
+          expect { ValidateBeforeTestUseCase.execute(Constants::INVALID_ATTRIBUTES) }.to\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
 
       describe "custom types" do
         it "allows validation against custom defined types" do
-          expect { ValidateBeforeCustomTypeTestUseCase.execute(Validations::CUSTOM_TYPE_ATTRIBUTES1) }.to_not raise_error
+          expect { ValidateBeforeCustomTypeTestUseCase.execute(Constants::CUSTOM_TYPE_ATTRIBUTES1) }.to_not raise_error
         end
 
         it "raises error if context has custom type attribute but value is not correct custom type" do
-          expect { ValidateBeforeCustomTypeTestUseCase.execute(Validations::CUSTOM_TYPE_ATTRIBUTES2) }.to\
+          expect { ValidateBeforeCustomTypeTestUseCase.execute(Constants::CUSTOM_TYPE_ATTRIBUTES2) }.to\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
@@ -131,6 +131,40 @@ module ActionLogic
           expect { ValidateAfterInvalidCustomPresenceTestUseCase.execute() }.to\
             raise_error(ActionLogic::PresenceError)
         end
+      end
+    end
+
+    describe "fail!" do
+      it "returns the context with the correct status and failure message" do
+        result = FailureTestUseCase.execute()
+
+        expect(result.status).to eq(:failure)
+        expect(result.message).to eq(Constants::FAILURE_MESSAGE)
+      end
+
+      it "stops execution of tasks after a task fails the context" do
+        result = FailureTestUseCase.execute()
+
+        expect(result.first).to eq("first")
+        expect(result.second).to eq("second")
+        expect(result.third).to be_nil
+      end
+    end
+
+    describe "halt!" do
+      it "returns the context with the correct status and halt message" do
+        result = HaltTestUseCase.execute()
+
+        expect(result.status).to eq(:halted)
+        expect(result.message).to eq(Constants::HALT_MESSAGE)
+      end
+
+      it "stops execution of tasks after a task halts the context" do
+        result = HaltTestUseCase.execute()
+
+        expect(result.first).to eq("first")
+        expect(result.second).to eq("second")
+        expect(result.third).to be_nil
       end
     end
   end

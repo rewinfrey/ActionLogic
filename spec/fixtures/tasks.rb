@@ -1,6 +1,6 @@
 require 'action_logic'
 require 'fixtures/custom_types'
-require 'fixtures/validations'
+require 'fixtures/constants'
 
 class SimpleTestTask
   extend ActionLogic::ActionTask
@@ -13,7 +13,7 @@ end
 class ValidateBeforeTestTask
   extend ActionLogic::ActionTask
 
-  validates_before Validations::ALL_VALIDATIONS
+  validates_before Constants::ALL_VALIDATIONS
 
   def call(context)
   end
@@ -53,7 +53,7 @@ end
 class ValidateAfterTestTask
   extend ActionLogic::ActionTask
 
-  validates_after Validations::ALL_VALIDATIONS
+  validates_after Constants::ALL_VALIDATIONS
 
   def call(context)
     context.integer_test = 1
@@ -70,7 +70,7 @@ end
 class ValidateAfterMissingAttributesTestTask
   extend ActionLogic::ActionTask
 
-  validates_after Validations::ALL_VALIDATIONS
+  validates_after Constants::ALL_VALIDATIONS
 
   def call(context)
   end
@@ -79,7 +79,7 @@ end
 class ValidateAfterInvalidTypeTestTask
   extend ActionLogic::ActionTask
 
-  validates_after Validations::ALL_VALIDATIONS
+  validates_after Constants::ALL_VALIDATIONS
 
   def call(context)
     context.integer_test = nil
@@ -169,7 +169,7 @@ end
 class ErrorHandlerInvalidAttributesBeforeTestTask
   extend ActionLogic::ActionTask
 
-  validates_before Validations::ALL_VALIDATIONS
+  validates_before Constants::ALL_VALIDATIONS
 
   def call(context)
     raise
@@ -183,7 +183,7 @@ end
 class ErrorHandlerInvalidAttributesAfterTestTask
   extend ActionLogic::ActionTask
 
-  validates_after Validations::ALL_VALIDATIONS
+  validates_after Constants::ALL_VALIDATIONS
 
   def call(context)
     raise
@@ -199,5 +199,21 @@ class MissingErrorHandlerTestTask
 
   def call(context)
     raise
+  end
+end
+
+class FailureTestTask
+  extend ActionLogic::ActionTask
+
+  def call(context)
+    context.fail!(Constants::FAILURE_MESSAGE)
+  end
+end
+
+class HaltTestTask
+  extend ActionLogic::ActionTask
+
+  def call(context)
+    context.halt!(Constants::HALT_MESSAGE)
   end
 end
