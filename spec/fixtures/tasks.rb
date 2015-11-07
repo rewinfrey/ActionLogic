@@ -28,6 +28,15 @@ class ValidateBeforeCustomTypeTestTask
   end
 end
 
+class ValidateBeforeUnrecognizablePresenceTestTask
+  extend ActionLogic::ActionTask
+
+  validates_before :integer_test => { :presence => :true }
+
+  def call(context)
+  end
+end
+
 class ValidateBeforePresenceTestTask
   extend ActionLogic::ActionTask
 
@@ -150,6 +159,16 @@ class ValidateAfterInvalidCustomPresenceTestTask
 
   def call(context)
     context.array_test = []
+  end
+end
+
+class ValidateAfterUnrecognizablePresenceTestTask
+  extend ActionLogic::ActionTask
+
+  validates_after :integer_test => { :presence => :true }
+
+  def call(context)
+    context.integer_test = 1
   end
 end
 
