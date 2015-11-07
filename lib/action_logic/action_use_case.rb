@@ -1,9 +1,8 @@
-require 'action_logic/util'
-require 'pp'
+require 'action_logic/action_core'
 
 module ActionLogic
   module ActionUseCase
-    include ActionLogic::Util
+    include ActionLogic::ActionCore
 
     def execute(params = {})
       around(params) do |context, execution_context|

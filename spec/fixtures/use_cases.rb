@@ -89,6 +89,19 @@ class ValidateBeforeCustomTypeTestUseCase
   end
 end
 
+class ValidateBeforeUnrecognizablePresenceTestUseCase
+  extend ActionLogic::ActionUseCase
+
+  validates_before :integer_test => { :presence => :true }
+
+  def call(context)
+  end
+
+  def tasks
+    []
+  end
+end
+
 class ValidateAfterTestUseCase
   extend ActionLogic::ActionUseCase
 
@@ -221,6 +234,20 @@ class ValidateAfterInvalidCustomPresenceTestUseCase
 
   def call(context)
     context.array_test = []
+  end
+
+  def tasks
+    []
+  end
+end
+
+class ValidateAfterUnrecognizablePresenceTestUseCase
+  extend ActionLogic::ActionUseCase
+
+  validates_after :integer_test => { :presence => :true }
+
+  def call(context)
+    context.integer_test = 1
   end
 
   def tasks

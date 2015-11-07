@@ -1,5 +1,7 @@
+require 'action_logic/errors'
+
 module ActionLogic
-  module Util
+  module ActionValidation
 
     def default_validations
       @validates_before ||= {}
@@ -18,39 +20,6 @@ module ActionLogic
       [:validate_attributes!,
        :validate_types!,
        :validate_presence!]
-    end
-
-    def break?(context)
-      context.status == :failure ||
-        context.status == :halted
-    end
-
-    def around(params, &blk)
-      context = make_context(params)
-
-      return context if break?(context)
-      default_validations
-      execution_context = self.new
-
-      validations.each { |validation| self.send(validation, context, @validates_before) }
-
-      begin
-        context = blk.call(context, execution_context)
-      rescue => e
-        if execution_context.respond_to?(:error)
-          execution_context.error(e, context)
-        else
-          raise e
-        end
-      end
-
-      validations.each { |validation| self.send(validation, context, @validates_after) }
-
-      context
-    end
-
-    def make_context(params = {})
-      ActionContext.new(params)
     end
 
     def validate_attributes!(existing_context, validations)
@@ -84,8 +53,10 @@ module ActionLogic
 
         if expected_validation[:presence] == true
           collection << "Attribute: #{expected_attribute} is missing value in context but presence validation was specified" unless existing_context[expected_attribute]
-        else
+        elsif expected_validation[:presence].class == Proc
           collection << "Attribute: #{expected_attribute} is missing value in context but custom presence validation was specified" unless expected_validation[:presence].call(existing_context[expected_attribute])
+        else
+          raise ActionLogic::UnrecognizablePresenceValidatorError.new("Presence validator: #{expected_validation[:presence]} is not a supported format")
         end
 
         collection

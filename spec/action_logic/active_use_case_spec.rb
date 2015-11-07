@@ -80,6 +80,11 @@ module ActionLogic
           expect { ValidateBeforeCustomPresenceTestUseCase.execute(:array_test => []) }.to\
             raise_error(ActionLogic::PresenceError)
         end
+
+        it "raises error if custom presence validation is not supported" do
+          expect { ValidateBeforeUnrecognizablePresenceTestUseCase.execute(:integer_test => 1) }.to\
+            raise_error(ActionLogic::UnrecognizablePresenceValidatorError)
+        end
       end
     end
 
@@ -130,6 +135,11 @@ module ActionLogic
         it "raises error if custom presence validation is not satisfied" do
           expect { ValidateAfterInvalidCustomPresenceTestUseCase.execute() }.to\
             raise_error(ActionLogic::PresenceError)
+        end
+
+        it "raises error if custom presence validation is not supported" do
+          expect { ValidateAfterUnrecognizablePresenceTestUseCase.execute() }.to\
+            raise_error(ActionLogic::UnrecognizablePresenceValidatorError)
         end
       end
     end
