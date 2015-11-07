@@ -2,18 +2,13 @@ require 'ostruct'
 
 module ActionLogic
   class ActionContext < OpenStruct
+    SUCCESS = :success
+    FAILURE = :failure
+    HALTED  = :halted
+
     def initialize(params = {})
-      params[:success] ||= true
+      params[:status] ||= SUCCESS
       super(params)
-    end
-
-    def fail!(message = "")
-      self.success = false
-      update!(:failure, message)
-    end
-
-    def halt!(message = "")
-      update!(:halted, message)
     end
 
     def update!(status, message)
@@ -21,8 +16,24 @@ module ActionLogic
       self.message = message
     end
 
+    def fail!(message = "")
+      update!(FAILURE, message)
+    end
+
+    def halt!(message = "")
+      update!(HALTED, message)
+    end
+
     def success?
-      success
+      self.status == SUCCESS
+    end
+
+    def failure?
+      self.status == FAILURE
+    end
+
+    def halted?
+      self.status == HALTED
     end
   end
 end
