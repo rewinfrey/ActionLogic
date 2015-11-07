@@ -177,5 +177,23 @@ module ActionLogic
         expect(result.third).to be_nil
       end
     end
+
+    describe "multiple use cases" do
+      it "does not persist attributes set on contexts from different use cases" do
+        result = HaltTestUseCase.execute()
+
+        expect(result.first).to eq("first")
+        expect(result.second).to eq("second")
+        expect(result.third).to be_nil
+        expect(result.status).to eq(:halted)
+
+        result2 = ValidateAfterPresenceTestUseCase.execute()
+
+        expect(result2.first).to be_nil
+        expect(result2.second).to be_nil
+        expect(result2.integer_test).to eq(1)
+        expect(result2.success?).to be_truthy
+      end
+    end
   end
 end

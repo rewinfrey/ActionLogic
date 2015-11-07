@@ -8,7 +8,7 @@ module ActionLogic
 
     describe "initialization" do
       it "sets a default success attribute on the context" do
-        expect(subject.success).to be_truthy
+        expect(subject.status).to eq(described_class::SUCCESS)
       end
     end
 
@@ -38,10 +38,10 @@ module ActionLogic
         expect(subject.message).to eq(failure_message)
       end
 
-      it "sets success to false on the context" do
+      it "responds to directly query" do
         subject.fail!
 
-        expect(subject.success?).to be_falsey
+        expect(subject.failure?).to be_truthy
       end
     end
 
@@ -58,17 +58,17 @@ module ActionLogic
         expect(subject.message).to be_empty
       end
 
-      it "allows a custom failure message to be defined" do
+      it "allows a custom halted message to be defined" do
         halt_message  = Constants::HALT_MESSAGE
         subject.halt!(halt_message)
 
         expect(subject.message).to eq(halt_message)
       end
 
-      it "does not alter success on the context" do
+      it "responds to direct query" do
         subject.halt!
 
-        expect(subject.success).to be_truthy
+        expect(subject.halted?).to be_truthy
       end
     end
   end
