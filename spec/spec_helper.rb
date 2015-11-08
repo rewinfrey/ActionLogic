@@ -1,3 +1,9 @@
+require 'simplecov'
+SimpleCov.start
+
+require 'coveralls'
+Coveralls.wear!
+
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 $LOAD_PATH << File.join(File.dirname(__FILE__))
 
