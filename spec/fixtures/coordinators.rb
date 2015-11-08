@@ -28,7 +28,8 @@ class HaltedTestCoordinator1
 
   def plan
     {
-      HaltedTestUseCase1 => { :halted  => TestUseCase2 },
+      HaltedTestUseCase1 => { :success => nil,
+                              :halted  => TestUseCase2 },
 
       TestUseCase2 => { :success => TestUseCase3 },
 
@@ -46,7 +47,316 @@ class FailureTestCoordinator1
 
   def plan
     {
-      FailureTestUseCase1 => { :failure  => TestUseCase2 },
+      FailureTestUseCase1 => { :success => nil,
+                               :failure  => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateBeforeTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_before Constants::ALL_VALIDATIONS
+
+  def call(context)
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateBeforeCustomTypeTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_before Constants::CUSTOM_TYPE_VALIDATION1
+
+  def call(context)
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateBeforePresenceTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_before Constants::PRESENCE_VALIDATION
+
+  def call(context)
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateBeforeCustomPresenceTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_before Constants::CUSTOM_PRESENCE_VALIDATION
+
+  def call(context)
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateBeforeUnrecognizablePresenceTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_before :integer_test => { :presence => :true }
+
+  def call(context)
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::ALL_VALIDATIONS
+
+  def call(context)
+    context.integer_test = 1
+    context.float_test   = 1.0
+    context.string_test  = "string"
+    context.bool_test    = false
+    context.hash_test    = {}
+    context.array_test   = []
+    context.symbol_test  = :symbol
+    context.nil_test     = nil
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterMissingAttributesTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::ALL_VALIDATIONS
+
+  def call(context)
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterInvalidTypeTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::ALL_VALIDATIONS
+
+  def call(context)
+    context.integer_test = nil
+    context.float_test   = nil
+    context.string_test  = nil
+    context.bool_test    = nil
+    context.hash_test    = nil
+    context.array_test   = nil
+    context.symbol_test  = nil
+    context.nil_test     = 1
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterCustomTypeTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::CUSTOM_TYPE_VALIDATION1
+
+  def call(context)
+    context.custom_type = CustomType1.new
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterInvalidCustomTypeTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::CUSTOM_TYPE_VALIDATION2
+
+  def call(context)
+    context.custom_type = CustomType1.new
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterPresenceTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::PRESENCE_VALIDATION
+
+  def call(context)
+    context.integer_test = 1
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterInvalidPresenceTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::PRESENCE_VALIDATION
+
+  def call(context)
+    context.integer_test = nil
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterCustomPresenceTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::CUSTOM_PRESENCE_VALIDATION
+
+  def call(context)
+    context.array_test = [1]
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterInvalidCustomPresenceTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after Constants::CUSTOM_PRESENCE_VALIDATION
+
+  def call(context)
+    context.array_test = []
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
+
+      TestUseCase2 => { :success => TestUseCase3 },
+
+      TestUseCase3 => { :success => nil }
+    }
+  end
+end
+
+class ValidateAfterUnrecognizablePresenceTestCoordinator
+  extend ActionLogic::ActionCoordinator
+
+  validates_after :integer_test => { :presence => :true }
+
+  def call(context)
+    context.integer_test = 1
+  end
+
+  def plan
+    {
+      TestUseCase1 => { :success => TestUseCase2 },
 
       TestUseCase2 => { :success => TestUseCase3 },
 

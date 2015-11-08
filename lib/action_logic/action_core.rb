@@ -37,6 +37,5 @@ module ActionLogic
 
       context
     end
-
   end
 end
