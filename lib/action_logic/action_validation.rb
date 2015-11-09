@@ -3,17 +3,27 @@ require 'action_logic/errors'
 module ActionLogic
   module ActionValidation
 
-    def default_validations
-      @validates_before ||= {}
-      @validates_after  ||= {}
-    end
+    module ClassMethods
+      def validates_before(args)
+        @validates_before = args
+      end
 
-    def validates_before(args)
-      @validates_before = args
-    end
+      def validates_after(args)
+        @validates_after = args
+      end
 
-    def validates_after(args)
-      @validates_after = args
+      def validates_around(args)
+        @validates_before = args
+        @validates_after  = args
+      end
+
+      def get_validates_before
+        @validates_before
+      end
+
+      def get_validates_after
+        @validates_after
+      end
     end
 
     def validations
@@ -22,22 +32,39 @@ module ActionLogic
        :validate_presence!]
     end
 
-    def validate_attributes!(existing_context, validations)
-      existing_attributes = existing_context.to_h.keys
+    def validate!(validation, validation_rules)
+      send(validation, validation_rules)
+    end
+
+    def before_validations!
+      validations.each { |validation| validate!(validation, @before_validation_rules) }
+    end
+
+    def after_validations!
+      validations.each { |validation| validate!(validation, @after_validation_rules) }
+    end
+
+    def set_validation_rules
+      @before_validation_rules ||= self.class.get_validates_before || {}
+      @after_validation_rules  ||= self.class.get_validates_after || {}
+    end
+
+    def validate_attributes!(validations)
+      existing_attributes = context.to_h.keys
       expected_attributes = validations.keys || []
       missing_attributes  = expected_attributes - existing_attributes
 
       raise ActionLogic::MissingAttributeError.new(missing_attributes) if missing_attributes.any?
     end
 
-    def validate_types!(existing_context, validations)
+    def validate_types!(validations)
       return unless validations.values.find { |expected_validation| expected_validation[:type] }
 
       type_errors = validations.reduce([]) do |collection, (expected_attribute, expected_validation)|
         next unless expected_validation[:type]
 
-        if type_to_sym(existing_context.to_h[expected_attribute]) != expected_validation[:type]
-          collection << "Attribute: #{expected_attribute} with value: #{existing_context.to_h[expected_attribute]} was expected to be of type #{expected_validation[:type]} but is #{type_to_sym(existing_context.to_h[expected_attribute])}"
+        if type_to_sym(context.to_h[expected_attribute]) != expected_validation[:type]
+          collection << "Attribute: #{expected_attribute} with value: #{context.to_h[expected_attribute]} was expected to be of type #{expected_validation[:type]} but is #{type_to_sym(context.to_h[expected_attribute])}"
         end
         collection
       end
@@ -45,16 +72,16 @@ module ActionLogic
       raise ActionLogic::AttributeTypeError.new(type_errors) if type_errors.any?
     end
 
-    def validate_presence!(existing_context, validations)
+    def validate_presence!(validations)
       return unless validations.values.find { |expected_validation| expected_validation[:presence] }
 
       presence_errors = validations.reduce([]) do |collection, (expected_attribute, expected_validation)|
         next unless expected_validation[:presence]
 
         if expected_validation[:presence] == true
-          collection << "Attribute: #{expected_attribute} is missing value in context but presence validation was specified" unless existing_context[expected_attribute]
+          collection << "Attribute: #{expected_attribute} is missing value in context but presence validation was specified" unless context[expected_attribute]
         elsif expected_validation[:presence].class == Proc
-          collection << "Attribute: #{expected_attribute} is missing value in context but custom presence validation was specified" unless expected_validation[:presence].call(existing_context[expected_attribute])
+          collection << "Attribute: #{expected_attribute} is missing value in context but custom presence validation was specified" unless expected_validation[:presence].call(context[expected_attribute])
         else
           raise ActionLogic::UnrecognizablePresenceValidatorError.new("Presence validator: #{expected_validation[:presence]} is not a supported format")
         end

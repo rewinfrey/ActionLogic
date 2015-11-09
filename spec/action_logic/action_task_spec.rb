@@ -145,7 +145,7 @@ module ActionLogic
           result = ErrorHandlerTestTask.execute()
 
           expect(result.e).to be_a(RuntimeError)
-          expect(result.context).to be_a(ActionLogic::ActionContext)
+          expect(result).to be_a(ActionLogic::ActionContext)
         end
       end
 

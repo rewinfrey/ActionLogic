@@ -3,55 +3,55 @@ require 'fixtures/custom_types'
 require 'fixtures/constants'
 
 class SimpleTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.new_attribute = true
   end
 end
 
 class ValidateBeforeTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_before Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
   end
 end
 
 class ValidateBeforeCustomTypeTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_before :custom_type => { :type => :customtype1, :presence => true }
 
-  def call(context)
+  def call
   end
 end
 
 class ValidateBeforeUnrecognizablePresenceTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_before :integer_test => { :presence => :true }
 
-  def call(context)
+  def call
   end
 end
 
 class ValidateBeforePresenceTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_before :integer_test => { :presence => true }
 
-  def call(context)
+  def call
   end
 end
 
 class ValidateBeforeCustomPresenceTestTask
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionTask
 
   validates_before :array_test => { :presence => ->(array_test) { array_test.any? } }
 
-  def call(context)
+  def call
   end
 
   def tasks
@@ -60,11 +60,11 @@ class ValidateBeforeCustomPresenceTestTask
 end
 
 class ValidateAfterTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
     context.integer_test = 1
     context.float_test   = 1.0
     context.string_test  = "string"
@@ -77,20 +77,20 @@ class ValidateAfterTestTask
 end
 
 class ValidateAfterMissingAttributesTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
   end
 end
 
 class ValidateAfterInvalidTypeTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
     context.integer_test = nil
     context.float_test   = nil
     context.string_test  = nil
@@ -103,136 +103,135 @@ class ValidateAfterInvalidTypeTestTask
 end
 
 class ValidateAfterCustomTypeTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after :custom_type => { :type => :customtype1, :presence => true }
 
-  def call(context)
+  def call
     context.custom_type = CustomType1.new
   end
 end
 
 class ValidateAfterInvalidCustomTypeTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after :custom_type => { :type => :customtype2, :presence => true }
 
-  def call(context)
+  def call
     context.custom_type = CustomType1.new
   end
 end
 
 class ValidateAfterPresenceTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after :integer_test => { :presence => true }
 
-  def call(context)
+  def call
     context.integer_test = 1
   end
 end
 
 class ValidateAfterInvalidPresenceTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after :integer_test => { :presence => true }
 
-  def call(context)
+  def call
     context.integer_test = nil
   end
 end
 
 class ValidateAfterCustomPresenceTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after :array_test => { :presence => ->(array_test) { array_test.any? } }
 
-  def call(context)
+  def call
     context.array_test = [1]
   end
 end
 
 class ValidateAfterInvalidCustomPresenceTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after :array_test => { :presence => ->(array_test) { array_test.any? } }
 
-  def call(context)
+  def call
     context.array_test = []
   end
 end
 
 class ValidateAfterUnrecognizablePresenceTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after :integer_test => { :presence => :true }
 
-  def call(context)
+  def call
     context.integer_test = 1
   end
 end
 
 class ErrorHandlerTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     raise
   end
 
-  def error(e, context)
+  def error(e)
     context.e = e
-    context.context = context
   end
 end
 
 class ErrorHandlerInvalidAttributesBeforeTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_before Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
     raise
   end
 
-  def error(e, context)
+  def error(e)
     context.error = "error"
   end
 end
 
 class ErrorHandlerInvalidAttributesAfterTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
   validates_after Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
     raise
   end
 
-  def error(e, context)
+  def error(e)
     context.error = "error"
   end
 end
 
 class MissingErrorHandlerTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     raise
   end
 end
 
 class FailureTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.fail!(Constants::FAILURE_MESSAGE)
   end
 end
 
 class HaltTestTask
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.halt!(Constants::HALT_MESSAGE)
   end
 end
