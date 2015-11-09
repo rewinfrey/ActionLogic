@@ -7,21 +7,76 @@
 
 ### Introduction
 
-This is a business logic abstraction gem that provides structure to the organization and composition of business logic in a Ruby or Rails application. `ActionLogic` is inspired by similar gems such as [ActiveInteraction](https://github.com/orgsync/active_interaction), [DecentExposure](https://github.com/hashrocket/decent_exposure), [Interactor](https://github.com/collectiveidea/interactor), [Light-Service](https://github.com/adomokos/light-service), [Mutations](https://github.com/cypriss/mutations), [Surrounded](https://github.com/saturnflyer/surrounded), [Trailblazer](https://github.com/apotonick/trailblazer) and [Wisper](https://github.com/krisleech/wisper). Why another business logic abstraction gem? `ActionLogic` seeks to provide teams of varying experience levels to find a common set of abstractions to work with that helps honor the SOLID principles, make resulting business logic code easy and simple to test and allow teams to spin up or refactor business domains quickly and efficiently.
+This is a business logic abstraction gem that provides structure to the organization and composition of business logic in a Ruby or Rails application. `ActionLogic` is inspired by similar gems such as [ActiveInteraction](https://github.com/orgsync/active_interaction), [DecentExposure](https://github.com/hashrocket/decent_exposure), [Interactor](https://github.com/collectiveidea/interactor), [Light-Service](https://github.com/adomokos/light-service), [Mutations](https://github.com/cypriss/mutations), [Surrounded](https://github.com/saturnflyer/surrounded), [Trailblazer](https://github.com/apotonick/trailblazer) and [Wisper](https://github.com/krisleech/wisper). 
+
+Why another business logic abstraction gem? `ActionLogic` seeks to provide teams of varying experience levels to work with a common set of abstractions that help to honor the SOLID principles, make resulting business logic code easy and simple to test and allow teams to spin up or refactor business domains quickly and efficiently.
 
 ### Overview
 
 There are three levels of abstraction provided by `ActionLogic`:
 
-* `ActionTask`
-* `ActionUseCase`
-* `ActionCoordinator`
+* `ActionTask` (the core unit of work)
+* `ActionUseCase` (contains one or many `ActionTask`s)
+* `ActionCoordinator` (contains two or more `ActionUseCase`s)
 
-Each level of abstraction operates with a shared, mutable data structure referred to as a `context` and is an instance of `ActionContext`.
+Each level of abstraction operates with a shared, mutable data structure referred to as a `context` and is an instance of `ActionContext`. This shared `context` is threaded through each `ActionTask`, `ActionUseCase` and / or `ActionCoordinator` until all work in the defined business logic flow are completed and the resulting `context` is returned to the original caller (typically in a Rails application this will be a controller action).
 
 ### ActionTask
 
+At the core of every `ActionLogic` work flow is an `ActionTask`. These units of work represent where concrete work is performed. All `ActionTask`s conform to the same basic structure and incorporate all the features of `ActionLogic` including validations, error handling and the ability to mutate the shared `context` made available to the `ActionTask`.
+
+The following is a simple example of an `ActionTask`:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+  
+  def call
+    context.example_attribute1 = "Example value"
+    context.example_attribute2 = 123
+  end
+end
+```
+
+To invoke the above `ActionTask`:
+
+```ruby
+result = ActionTaskExample.execute
+result # => <ActionContext :success=true, :example_attribute1="Example value", :example_attribute2=123, :message = "">
+```
+
+This is a simple example, but shows the basic structure of `ActionTask`s and the way they can be invoked by themselves in isolation. However, many of the business logic work flows we find ourselves needing in Rails applications require multiple steps or tasks to achieve the intended result. When we have a business workflow that requires multiple tasks, we can use the `ActionUseCase` abstraction to provide organization and a deterministic order for how the required `ActionTask`s are invoked.
+
 ### ActionUseCase
+
+Most of the time our business logic work flows can be thought of as use cases of a given domain in our Rails application. Whether that domain is a user, account or notification domain, we can abstract a series of steps that need to be performed from a controller action into a well defined use case that specifies a series of tasks in order to satisfy that use case's goal. `ActionUseCase` represents a layer of abstraction that organizes multiple `ActionTask`s and executes them in a specified order with a shared `context`:
+
+```ruby
+class ActionUseCaseExample
+  include ActionLogic::ActionUseCase
+  
+  # The `call` method is invoked prior to invoking any of the ActionTasks defined by the `tasks` method.
+  # The purpose of the `call` method allows us to prepare the shared `context` prior to invoking the ActionTasks.
+  def call
+    context.example_attribute1 = "Example value"
+    context.example_attribute2 = 123
+  end
+  
+  def tasks
+    [ActionTaskExample1,
+     ActionTaskExample2,
+     ActionTaskExample3]
+  end
+end
+```
+
+We see in the above example that an `ActionUseCase` differs from `ActionTask` by adding a `tasks` method. The `tasks` method defines a list of `ActionTask` classes that are invoked in order with the same shared `context` passed from task1 to task2 and so on until all tasks are invoked. Additionally, `ActionUseCase` requires us to define a `call` method that allows us to prepare any necessary attributes and values on the shared `context` prior to beginning the evaluation of the `ActionTask`s defined by the `tasks` method.
+
+We can invoke the above `ActionUseCase` in the following way:
+
+```ruby
+ActionUseCaseExample.execute()
+```
 
 ### ActionCoordinator
 
