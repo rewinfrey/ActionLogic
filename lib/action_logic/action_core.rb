@@ -1,41 +1,43 @@
-require 'action_logic/action_validation'
-
 module ActionLogic
   module ActionCore
-    include ActionLogic::ActionValidation
+    attr_accessor :context
+
+    def initialize(params)
+      self.context = make_context(params)
+    end
 
     def make_context(params = {})
       ActionContext.new(params)
     end
 
-    def break?(context)
+    def break?
       context.status == :failure ||
         context.status == :halted
     end
 
-    def around(params, &blk)
-      context = make_context(params)
+    module ClassMethods
+      def around(params, &block)
+        execution_context = self.new(params)
 
-      return context if break?(context)
+        return execution_context.context if execution_context.break?
 
-      default_validations
-      execution_context = self.new
+        execution_context.set_validation_rules
+        execution_context.before_validations!
 
-      validations.each { |validation| self.send(validation, context, @validates_before) }
-
-      begin
-        context = blk.call(context, execution_context)
-      rescue => e
-        if execution_context.respond_to?(:error)
-          execution_context.error(e, context)
-        else
-          raise e
+        begin
+          block.call(execution_context)
+        rescue => e
+          if execution_context.respond_to?(:error)
+            execution_context.error(e)
+          else
+            raise e
+          end
         end
+
+        execution_context.after_validations!
+
+        execution_context.context
       end
-
-      validations.each { |validation| self.send(validation, context, @validates_after) }
-
-      context
     end
   end
 end

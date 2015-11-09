@@ -2,9 +2,9 @@ require 'action_logic'
 require 'fixtures/constants'
 
 class TestCoordinator1
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
-  def call(context)
+  def call
     context.test_coordinator1 = true
   end
 
@@ -20,9 +20,9 @@ class TestCoordinator1
 end
 
 class HaltedTestCoordinator1
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
-  def call(context)
+  def call
     context.halted_test_coordinator1 = true
   end
 
@@ -39,9 +39,9 @@ class HaltedTestCoordinator1
 end
 
 class FailureTestCoordinator1
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
-  def call(context)
+  def call
     context.failure_test_coordinator1 = true
   end
 
@@ -58,11 +58,11 @@ class FailureTestCoordinator1
 end
 
 class ValidateBeforeTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_before Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
   end
 
   def plan
@@ -77,11 +77,11 @@ class ValidateBeforeTestCoordinator
 end
 
 class ValidateBeforeCustomTypeTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_before Constants::CUSTOM_TYPE_VALIDATION1
 
-  def call(context)
+  def call
   end
 
   def plan
@@ -96,11 +96,11 @@ class ValidateBeforeCustomTypeTestCoordinator
 end
 
 class ValidateBeforePresenceTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_before Constants::PRESENCE_VALIDATION
 
-  def call(context)
+  def call
   end
 
   def plan
@@ -115,11 +115,11 @@ class ValidateBeforePresenceTestCoordinator
 end
 
 class ValidateBeforeCustomPresenceTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_before Constants::CUSTOM_PRESENCE_VALIDATION
 
-  def call(context)
+  def call
   end
 
   def plan
@@ -134,11 +134,11 @@ class ValidateBeforeCustomPresenceTestCoordinator
 end
 
 class ValidateBeforeUnrecognizablePresenceTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_before :integer_test => { :presence => :true }
 
-  def call(context)
+  def call
   end
 
   def plan
@@ -153,11 +153,11 @@ class ValidateBeforeUnrecognizablePresenceTestCoordinator
 end
 
 class ValidateAfterTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
     context.integer_test = 1
     context.float_test   = 1.0
     context.string_test  = "string"
@@ -180,11 +180,11 @@ class ValidateAfterTestCoordinator
 end
 
 class ValidateAfterMissingAttributesTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
   end
 
   def plan
@@ -199,11 +199,11 @@ class ValidateAfterMissingAttributesTestCoordinator
 end
 
 class ValidateAfterInvalidTypeTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::ALL_VALIDATIONS
 
-  def call(context)
+  def call
     context.integer_test = nil
     context.float_test   = nil
     context.string_test  = nil
@@ -226,11 +226,11 @@ class ValidateAfterInvalidTypeTestCoordinator
 end
 
 class ValidateAfterCustomTypeTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::CUSTOM_TYPE_VALIDATION1
 
-  def call(context)
+  def call
     context.custom_type = CustomType1.new
   end
 
@@ -246,11 +246,11 @@ class ValidateAfterCustomTypeTestCoordinator
 end
 
 class ValidateAfterInvalidCustomTypeTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::CUSTOM_TYPE_VALIDATION2
 
-  def call(context)
+  def call
     context.custom_type = CustomType1.new
   end
 
@@ -266,11 +266,11 @@ class ValidateAfterInvalidCustomTypeTestCoordinator
 end
 
 class ValidateAfterPresenceTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::PRESENCE_VALIDATION
 
-  def call(context)
+  def call
     context.integer_test = 1
   end
 
@@ -286,11 +286,11 @@ class ValidateAfterPresenceTestCoordinator
 end
 
 class ValidateAfterInvalidPresenceTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::PRESENCE_VALIDATION
 
-  def call(context)
+  def call
     context.integer_test = nil
   end
 
@@ -306,11 +306,11 @@ class ValidateAfterInvalidPresenceTestCoordinator
 end
 
 class ValidateAfterCustomPresenceTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::CUSTOM_PRESENCE_VALIDATION
 
-  def call(context)
+  def call
     context.array_test = [1]
   end
 
@@ -326,11 +326,11 @@ class ValidateAfterCustomPresenceTestCoordinator
 end
 
 class ValidateAfterInvalidCustomPresenceTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after Constants::CUSTOM_PRESENCE_VALIDATION
 
-  def call(context)
+  def call
     context.array_test = []
   end
 
@@ -346,11 +346,11 @@ class ValidateAfterInvalidCustomPresenceTestCoordinator
 end
 
 class ValidateAfterUnrecognizablePresenceTestCoordinator
-  extend ActionLogic::ActionCoordinator
+  include ActionLogic::ActionCoordinator
 
   validates_after :integer_test => { :presence => :true }
 
-  def call(context)
+  def call
     context.integer_test = 1
   end
 
@@ -366,9 +366,9 @@ class ValidateAfterUnrecognizablePresenceTestCoordinator
 end
 
 class TestUseCase1
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.test_use_case1 = true
   end
 
@@ -378,9 +378,9 @@ class TestUseCase1
 end
 
 class TestHaltUseCase1
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.test_use_case1 = true
   end
 
@@ -390,9 +390,9 @@ class TestHaltUseCase1
 end
 
 class TestUseCase2
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.test_use_case2 = true
   end
 
@@ -402,9 +402,9 @@ class TestUseCase2
 end
 
 class TestUseCase3
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.test_use_case3 = true
   end
 
@@ -414,9 +414,9 @@ class TestUseCase3
 end
 
 class HaltedTestUseCase1
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.halted_test_use_case1 = true
   end
 
@@ -426,9 +426,9 @@ class HaltedTestUseCase1
 end
 
 class HaltedTestUseCase2
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.halted_test_use_case2 = true
   end
 
@@ -438,9 +438,9 @@ class HaltedTestUseCase2
 end
 
 class HaltedTestUseCase3
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.halted_test_use_case3 = true
   end
 
@@ -450,9 +450,9 @@ class HaltedTestUseCase3
 end
 
 class FailureTestUseCase1
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.failure_test_use_case1 = true
   end
 
@@ -462,9 +462,9 @@ class FailureTestUseCase1
 end
 
 class FailureTestUseCase2
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.failure_test_use_case2 = true
   end
 
@@ -474,9 +474,9 @@ class FailureTestUseCase2
 end
 
 class FailureTestUseCase3
-  extend ActionLogic::ActionUseCase
+  include ActionLogic::ActionUseCase
 
-  def call(context)
+  def call
     context.failure_test_use_case3 = true
   end
 
@@ -486,78 +486,78 @@ class FailureTestUseCase3
 end
 
 class TestTask1
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.test_task1 = true
   end
 end
 
 class TestTask2
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.test_task2 = true
   end
 end
 
 class TestTask3
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.test_task3 = true
   end
 end
 
 class HaltedTestTask1
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.halted_test_task1 = true
     context.halt!
   end
 end
 
 class HaltedTestTask2
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.halted_test_task2 = true
     context.halt!
   end
 end
 
 class HaltedTestTask3
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.halted_test_task3 = true
     context.halt!
   end
 end
 
 class FailureTestTask1
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.failure_test_task1 = true
     context.fail!
   end
 end
 
 class FailureTestTask2
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.failure_test_task2 = true
     context.fail!
   end
 end
 
 class FailureTestTask3
-  extend ActionLogic::ActionTask
+  include ActionLogic::ActionTask
 
-  def call(context)
+  def call
     context.failure_test_task3 = true
     context.fail!
   end
