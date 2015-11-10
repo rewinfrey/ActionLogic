@@ -17,15 +17,15 @@ module ActionLogic
       end
 
       def get_validates_before
-        @validates_before
+        @validates_before ||= {}
       end
 
       def get_validates_after
-        @validates_after
+        @validates_after ||= {}
       end
 
       def get_validates_around
-        @validates_around
+        @validates_around ||= {}
       end
     end
 
@@ -49,9 +49,9 @@ module ActionLogic
     end
 
     def set_validation_rules
-      @before_validation_rules ||= self.class.get_validates_before || {}
-      @after_validation_rules  ||= self.class.get_validates_after  || {}
-      @around_validation_rules ||= self.class.get_validates_around || {}
+      @before_validation_rules ||= self.class.get_validates_before
+      @after_validation_rules  ||= self.class.get_validates_after
+      @around_validation_rules ||= self.class.get_validates_around
     end
 
     def validate_attributes!(validations)
