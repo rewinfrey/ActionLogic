@@ -13,8 +13,7 @@ module ActionLogic
       end
 
       def validates_around(args)
-        @validates_before = args
-        @validates_after  = args
+        @validates_around = args
       end
 
       def get_validates_before
@@ -23,6 +22,10 @@ module ActionLogic
 
       def get_validates_after
         @validates_after
+      end
+
+      def get_validates_around
+        @validates_around
       end
     end
 
@@ -33,20 +36,22 @@ module ActionLogic
     end
 
     def validate!(validation, validation_rules)
+      return if validation_rules.empty?
       send(validation, validation_rules)
     end
 
-    def before_validations!
-      validations.each { |validation| validate!(validation, @before_validation_rules) }
-    end
-
-    def after_validations!
-      validations.each { |validation| validate!(validation, @after_validation_rules) }
+    def validations!(validation_order)
+      case validation_order
+      when :before then validations.each { |validation| validate!(validation, @before_validation_rules) }
+      when :after  then validations.each { |validation| validate!(validation, @after_validation_rules) }
+      when :around then validations.each { |validation| validate!(validation, @around_validation_rules) }
+      end
     end
 
     def set_validation_rules
       @before_validation_rules ||= self.class.get_validates_before || {}
-      @after_validation_rules  ||= self.class.get_validates_after || {}
+      @after_validation_rules  ||= self.class.get_validates_after  || {}
+      @around_validation_rules ||= self.class.get_validates_around || {}
     end
 
     def validate_attributes!(validations)

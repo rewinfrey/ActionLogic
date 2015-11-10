@@ -10,6 +10,55 @@ class SimpleTestTask
   end
 end
 
+class ValidateAroundTestTask
+  include ActionLogic::ActionTask
+
+  validates_around Constants::ALL_VALIDATIONS
+
+  def call
+  end
+end
+
+class ValidateAroundCustomTypeTestTask
+  include ActionLogic::ActionTask
+
+  validates_around :custom_type => { :type => :customtype1, :presence => true }
+
+  def call
+  end
+end
+
+class ValidateAroundUnrecognizablePresenceTestTask
+  include ActionLogic::ActionTask
+
+  validates_around :integer_test => { :presence => :true }
+
+  def call
+  end
+end
+
+class ValidateAroundPresenceTestTask
+  include ActionLogic::ActionTask
+
+  validates_around :integer_test => { :presence => true }
+
+  def call
+  end
+end
+
+class ValidateAroundCustomPresenceTestTask
+  include ActionLogic::ActionTask
+
+  validates_around :array_test => { :presence => ->(array_test) { array_test.any? } }
+
+  def call
+  end
+
+  def tasks
+    []
+  end
+end
+
 class ValidateBeforeTestTask
   include ActionLogic::ActionTask
 
