@@ -5,40 +5,59 @@
 [![Code Climate](https://codeclimate.com/github/rewinfrey/action_logic/badges/gpa.svg)](https://codeclimate.com/github/rewinfrey/action_logic)
 [![Coverage Status](https://coveralls.io/repos/rewinfrey/action_logic/badge.svg?branch=master&service=github)](https://coveralls.io/github/rewinfrey/action_logic?branch=master)
 
-<img src="https://github.com/rewinfrey/action_logic/blob/master/resources/action_task_diagram.png" alt="ActionTask Diagram" style="width: 100px; height: 20px" />
-
 ### Introduction
 
 This is a business logic abstraction gem that provides structure to the organization and composition of business logic in a Ruby or Rails application. `ActionLogic` is inspired by gems like [ActiveInteraction](https://github.com/orgsync/active_interaction), [DecentExposure](https://github.com/hashrocket/decent_exposure), [Interactor](https://github.com/collectiveidea/interactor), [Light-Service](https://github.com/adomokos/light-service), [Mutations](https://github.com/cypriss/mutations), [Surrounded](https://github.com/saturnflyer/surrounded), [Trailblazer](https://github.com/apotonick/trailblazer) and [Wisper](https://github.com/krisleech/wisper). 
 
 Why another business logic abstraction gem? `ActionLogic` provides teams of various experience levels with a minimal yet powerful set of abstractions that promote easy to write and easy to understand code. By using `ActionLogic`, teams can more quickly and easily write business logic that honors the SOLID principles, is easy to test and easy to reason about, and provides a flexible foundation from which teams can model and define their application's business domains by focusing on reusable units of work that can be composed and validated with one another.
 
+### Contents
+
+* [`ActionContext`](#action_context)
+* [`ActionTask`](#action_task)
+* [`ActionUseCase`](#action_use_case)
+* [`ActionCoordinator`](#action_coordinator)
+* [Succeeding an `ActionContext`](#succeed_context)
+* [Failing an `ActionContext`](#fail_context)
+* [Halting an `ActionContext`](#halt_context)
+* [Custom `ActionContext` Status](#custom_status)
+* [Error Handling](#error_handling)
+* [Attribute Validations](#attribute_validations)
+* [Type Validations](#type_validations)
+* [Custom Type Validations](#custom_type_validations)
+* [Presence Validations](#presence_validations)
+* [Custom Presence Validations](#custom_presence_validations)
+* [Before Validations](#before_validations)
+* [After Validations](#after_validations)
+* [Around Validations](#around_validations)
+
 ### Overview
 
 There are three levels of abstraction provided by `ActionLogic`:
 
-* `ActionTask` (the core unit of work)
-* `ActionUseCase` (contains one or many `ActionTasks`)
-* `ActionCoordinator` (contains two or more `ActionUseCases`)
+* [`ActionTask` (the core unit of work)](#actiontask)
+* [`ActionUseCase` (contains one or many `ActionTasks`)](#actionusecase)
+* [`ActionCoordinator` (contains two or more `ActionUseCases`)](#actioncoordinator)
 
 Each level of abstraction operates with a shared, mutable data structure referred to as a `context` and is an instance of `ActionContext`. This shared `context` is threaded through each `ActionTask`, `ActionUseCase` and / or `ActionCoordinator` until all work is completed. The resulting `context` is returned to the original caller (typically in a Rails application this will be a controller action).
 
-### ActionTask
+### ActionTask<a name="actiontask"></a>
 
 At the core of every `ActionLogic` work flow is an `ActionTask`. These units of work are where the concrete work is performed. All `ActionTasks` conform to the same basic structure and incorporate all the features of `ActionLogic` including validations, error handling and the ability to read and mutate the attributes defined on shared `context`, as well as define new attributes on the shared `context` made available to the `ActionTask`.
 
-The following is a simple example of an `ActionTask`:
+The following is a simple example of an `ActionTask` that includes :
 
 ```ruby
 class ActionTaskExample
   include ActionLogic::ActionTask
   
+  validates_before :expected_attribute1 => { :type => :string },
+                   :expected_attribute2 => { :type => :integer, :presence => true }
+  validates_after  :example_attribute1 => { :type => :string, :presence => ->(example_attribute1) { !example_attribute1.empty? } }
+  
   def call
     # adds `example_attribute1` to the shared `context` with the value "Example value"
-    context.example_attribute1 = "Example value"
-    
-    # adds `example_attribute2` to the shared `context` with the value 123
-    context.example_attribute2 = 123
+    context.example_attribute1 = "New value from context attributes: #{context.expected_attribute1} #{context.expected_attribute2}"
   end
 end
 ```
@@ -46,14 +65,14 @@ end
 To invoke the above `ActionTask`:
 
 ```ruby
-result = ActionTaskExample.execute
+result = ActionTaskExample.execute(:expected_attribute1 => "example", :expected_attribute2 => 123)
 
-result # => #<ActionLogic::ActionContext status=:success, example_attribute1="Example value", example_attribute2=123>
+result # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_attribute1="New value from context attributes: example 123">
 ```
 
-This is a simple example, but shows the basic structure of `ActionTasks` and the way they can be invoked in isolation. However, many of the business logic work flows we find ourselves needing in Rails applications require multiple steps or tasks to achieve the intended result. When we have a business workflow that requires multiple tasks, we can use the `ActionUseCase` abstraction to provide organization and a deterministic order for how the required `ActionTasks` are invoked.
+This is a simple example, but shows the basic structure of [`ActionTasks`](#actiontask) and the way they can be invoked in isolation. It also shows how we can take advantage of `ActionLogic's` [validations](#validations). However, many of the business logic work flows we find ourselves needing in Rails applications require multiple steps or tasks to achieve the intended result. When we have a business workflow that requires multiple tasks, we can use the `ActionUseCase` abstraction to provide organization and a deterministic order for how the required `ActionTasks` are invoked.
 
-### ActionUseCase
+### ActionUseCase<a name="actionusecase"></a>
 
 In many cases the business logic required by a Rails application requires multiple steps or tasks to complete. `ActionUseCase` represents a layer of abstraction that organizes multiple `ActionTasks` and executes each `ActionTask` in the order they are defined. A single, shared `context` is passed to each `ActionTask`. The following is a simple example:
 
@@ -112,11 +131,11 @@ By following the value of the shared `context` from the `ActionUseCaseExample` t
 
 Rails applications that continue to grow in complexity and size will eventually require stringing together multiple `use cases` of related business logic. When this need arises we can utilize the `ActionCoordinator` abstraction.
 
-### ActionCoordinator
+### ActionCoordinator<a name="actioncoordinator"></a>
 
-### ActionContext
+### ActionContext<a name="actioncontext"></a>
 
-### Features
+### Features<a name="features"</a>
 
 `ActionLogic` provides a number of convenience functionality that supports simple to complex business logic work flows while maintaining a simple and easy to understand API:
 
@@ -124,7 +143,7 @@ Rails applications that continue to grow in complexity and size will eventually 
 * Custom error handling defined as a callback
 * Prematurely halt or fail a workflow
 
-### Validations
+### Validations<a name="validations"></a>
 
 Validating that a shared `context` contains the necessary attributes (parameters) becomes increasingly important as your application grows in complexity and `ActionTask` or `ActionUseCase` classes are reused. `ActionLogic` makes it easy to validate your shared `context`s by providing three different validations:
 
