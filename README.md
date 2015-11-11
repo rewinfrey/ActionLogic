@@ -13,6 +13,8 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 
 ### Contents
 
+* [Backstory](#backstory)
+* [Overview](#overview)
 * [`ActionContext`](#action_context)
 * [`ActionTask`](#action_task)
 * [`ActionUseCase`](#action_use_case)
@@ -31,7 +33,7 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 * [After Validations](#after_validations)
 * [Around Validations](#around_validations)
 
-### Overview
+### Backstory<a name="backstory"></a>
 
 Consider a traditional e-commerce Rails application. Users can shop online and add items to their shopping cart until they are ready to check out.
 The happy path scenario might go something like this: the user submits their order form, an orders controller action records the order in the database,
@@ -70,9 +72,11 @@ but *can* help simplify your application's business logic by encouraging you to 
 like type and presence validation that help reduce or eliminate boiler plate, defensive code (nil checks anyone?). However, as with all general purpose libraries, your mileage
 will vary.
 
+### Overview<a name="overview"></a>
+
 There are three levels of abstraction provided by `ActionLogic`:
 
-* [`ActionTask` (a core unit of work)](#action_task)
+* [`ActionTask` (a concrete unit of work)](#action_task)
 * [`ActionUseCase` (organizes two or more `ActionTasks`)](#action_use_case)
 * [`ActionCoordinator` (coordinates two or more `ActionUseCases`)](#action_coordinator)
 
@@ -87,6 +91,8 @@ to fulfill all the necessary work required when a user submits a checkout order 
 The diagram below illustrates the relation between `ActionTask`, `ActionUseCase` and `ActionCoordinator`, and the role of `ActionContext` as the primary, single input:
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/overview_diagram.png" />
+
+### ActionContext<a name="action_context"></a>
 
 ### ActionTask<a name="action_task"></a>
 
@@ -294,8 +300,6 @@ result # => #<ActionLogic::ActionContext status=:success, required_attribute1="r
 ```
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_coordinator_diagram.png" />
-
-### ActionContext<a name="action_context"></a>
 
 ### Features<a name="features"</a>
 
