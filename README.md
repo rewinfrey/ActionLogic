@@ -36,13 +36,13 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 At the core
 There are three levels of abstraction provided by `ActionLogic`:
 
-* [`ActionTask` (the core unit of work)](#actiontask)
-* [`ActionUseCase` (contains one or many `ActionTasks`)](#actionusecase)
-* [`ActionCoordinator` (contains two or more `ActionUseCases`)](#actioncoordinator)
+* [`ActionTask` (the core unit of work)](#action_task)
+* [`ActionUseCase` (contains one or many `ActionTasks`)](#action_use_case)
+* [`ActionCoordinator` (contains two or more `ActionUseCases`)](#action_coordinator)
 
 Each level of abstraction operates with a shared, mutable data structure referred to as a `context` and is an instance of `ActionContext`. This shared `context` is threaded through each `ActionTask`, `ActionUseCase` and / or `ActionCoordinator` until all work is completed. The resulting `context` is returned to the original caller (typically in a Rails application this will be a controller action).
 
-### ActionTask<a name="actiontask"></a>
+### ActionTask<a name="action_task"></a>
 
 At the core of every `ActionLogic` work flow is an `ActionTask`. These classes are the lowest level of abstraction in `ActionLogic` and are where concrete work is performed. All `ActionTasks` conform to the same structure and incorporate all features of `ActionLogic` including validations and error handling.
 
@@ -75,18 +75,27 @@ The diagram below is a visual representation of how an `ActionTask` is evaluted 
 
 Although this example is for the `ActionTask` abstraction, `ActionUseCase` and `ActionCoordinator` follow the same pattern. The difference is that `ActionUseCase` is designed to organize multiple `ActionTasks`, and `ActionCoordinator` is designed to organize many `ActionUseCases`.
 
-### ActionUseCase<a name="actionusecase"></a>
+### ActionUseCase<a name="action_use_case"></a>
 
-In many cases the business logic required by a Rails application requires multiple steps or tasks to complete. `ActionUseCase` represents a layer of abstraction that organizes multiple `ActionTasks` and executes each `ActionTask` in the order they are defined. A single, shared `context` is passed to each `ActionTask`. The following is a simple example:
+As business logic grows in complexity the number of steps or tasks required to fulfill that business logic will increase. Managing those tasks while making them easy to reuse is a challenge many developers will face. `ActionUseCase` represents a layer of abstraction that organizes multiple `ActionTasks` and executes each `ActionTask` in the order they are defined. This execution of `ActionTasks` allows tasks to be composed together in a procedural execution. In order for tasks to be composed a single, shared `context` is passed to each `ActionTask`, allowing each `ActionTask` the ability to get or set attribute on the shared `context` as required by the logic defined in a given `ActionTask`.
+
+To implement an `ActionUseCase` class you must define a `call` method and a `tasks` method. You also can specify any before, after or around validations or an error handler. The following is an example showcasing how an `ActionUseCase` class organizes the execution of multiple `ActionTasks` and defines before and after validations on the shared `context`:
 
 ```ruby
 class ActionUseCaseExample
   include ActionLogic::ActionUseCase
 
+  validates_before :expected_attribute1 => { :type => :string },
+                   :expected_attribute2 => { :type => :integer, :presence => true }
+  validates_after  :example_task1    => { :type => :boolean, :presence => true },
+                   :example_task2    => { :type => :boolean, :presence => true },
+                   :example_task3    => { :type => :boolean, :presence => true },
+                   :example_usecase1 => { :type => :boolean, :presence => true }
+
   # The `call` method is invoked prior to invoking any of the ActionTasks defined by the `tasks` method.
   # The purpose of the `call` method allows us to prepare the shared `context` prior to invoking the ActionTasks.
   def call
-    context # => #<ActionLogic::ActionContext status=:success>
+    context # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success>
     context.example_usecase1 = true
   end
 
@@ -99,44 +108,49 @@ end
 
 class ActionTaskExample1
   include ActionLogic::ActionTask
+  validates_after :example_task1 => { :type => :boolean, :presence => true }
 
   def call
-    context # => #<ActionLogic::ActionContext status=:success, example_usecase1=true>
+    context # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true>
     context.example_task1 = true
   end
 end
 
 class ActionTaskExample2
   include ActionLogic::ActionTask
+  validates_after :example_task2 => { :type => :boolean, :presence => true }
 
   def call
-    context # => #<ActionLogic::ActionContext status=:success, example_usecase1=true, example_task1=true>
+    context # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true>
     context.example_task2 = true
   end
 end
 
 class ActionTaskExample3
   include ActionLogic::ActionTask
+  validates_after :example_task3 => { :type => :boolean, :presence => true }
 
   def call
-    context # => #<ActionLogic::ActionContext status=:success, example_usecase1=true, example_task1=true, example_task2=true>
+    context # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true, example_task2=true>
     context.example_task3 = true
   end
 end
 
-# To invoke the ActionUseCaseExample, we call its execute method:
-result = ActionUseCaseExample.execute
+# To invoke the ActionUseCaseExample, we call its execute method with the required attributes:
+result = ActionUseCaseExample.execute(:expected_attribute1 => "example", :expected_attribute2 => 123)
 
-result # => #<ActionLogic::ActionContext status=:success, example_usecase1=true, example_task1=true, example_task2=true, example_task3=true>
+result # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true, example_task2=true, example_task3=true>
 ```
 
 By following the value of the shared `context` from the `ActionUseCaseExample` to each of the `ActionTask` classes, it is possible to see how the shared `context` is mutated to accomodate the various attributes and their values each execution context adds to the `context`. It also reveals the order in which the `ActionTasks` are evaluated, and indicates that the `call` method of the `ActionUseCaseExample` is invoked prior to any of the `ActionTasks` defined in the `tasks` method.
 
-Rails applications that continue to grow in complexity and size will eventually require stringing together multiple `use cases` of related business logic. When this need arises we can utilize the `ActionCoordinator` abstraction.
+To help visualize the flow of execution when an `ActionUseCase` is invoked, this diagram aims to illustrate the relationship between `ActionUseCase` and `ActionTasks` and the order in which operations are performed:
 
-### ActionCoordinator<a name="actioncoordinator"></a>
+<img src="https://github.com/rewinfrey/action_logic/blob/master/resources/action_use_case_diagram.png" />
 
-### ActionContext<a name="actioncontext"></a>
+### ActionCoordinator<a name="action_coordinator"></a>
+
+### ActionContext<a name="action_context"></a>
 
 ### Features<a name="features"</a>
 
