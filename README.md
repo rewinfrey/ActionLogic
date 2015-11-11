@@ -33,14 +33,60 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 
 ### Overview
 
-At the core
+Consider a traditional e-commerce Rails application. Users can shop online and add items to their shopping cart until they are ready to check out.
+The happy path scenario might go something like this: the user submits their order form, an orders controller action records the order in the database,
+submits the order total to a payment processor, waits for a response from the payment processor, and upon a success response from the payment processor sends
+an order confirmation email to the user, the order is send internally to the warehouse for fulfillment which requires creating various records in the database,
+and finally the server responds to the initial POST request with a rendered html page including a message indicating the order was successfully processed. In this
+work flow there are at least 7 distinct steps or tasks that must be satisfied in order for the application's business logic to be considered correct according
+to specifications.
+
+Although this flow works well for most users, there are other users whose credit card information might be expired or users who might attempt to check out when
+your application's payment processor service is down. Additional edge case scenarios start to pop up in error logs as exception emails fill up your inbox.
+What happens when that user that is notorious for having 100 tabs open forgets to complete the checkout process and submits a two week old order form that
+includes an item that your e-commerce store no longer stocks? What happens if an item is sold out? The edge cases and exception emails pile up, and as each one comes in
+you add more and more logic to that controller action.
+
+What once was a simple controller action designed with only the happy path of a successful checkout in mind has now become a 100 lines long with 5 to 10 levels
+of nested if statements. The voice of Uncle Bob starts ringing in your ears and you know there must be a better way. You think on it for awhile and consider not only
+the technical challenges of refactoring this code, but you'd also like to make this code reusable and modular. You want this code to be easy to test and easy to maintain.
+You want to honor the SOLID principles by writing classes that are singularly focused and easy to extend. You reason these new classes should only have to change if the
+business logic they execute changes. You see that there are relationships between the entities and you see the possibility of abstractions that allow entities of similar types
+to interact nicely with each other. You begin thinking about interfaces and the Liskov Substitution Principle, and eventually your mind turns towards domains and data modeling.
+Where does it end you wonder?
+
+But you remember your team. It's a team of people all wanting to do their best, and represent a variety of backgrounds and experiences. Each person has varying degress of familiarity
+with different types of abstractions and approaches, and you wonder what abstractions might be as easy to work with for a new developer as they are for an experienced developer?
+You consider DSL's you've used in the past and wonder what is that ideal balance between magic and straightforward OOP design?
+
+As more and more questions pile up in the empty space of your preferred text editor, you receive another exception email for a new problem with the order flow. The questions about
+how to refactor this code transform into asking questions about how can you edit the existing code to add the new fix? Add a new nested if statement? You do what you can given the
+constraints you're faced with, and add another 5 lines and another nested if statement. You realize there is not enough time to make this refactor happen, and you've got to push the
+fix out as soon as possible. Yet, as you merge your feature branch in master and deploy a hotfix, you think surely there must be a better way.
+
+`ActionLogic` was born from many hours thinking about these questions and considering how it might be possible to achieve a generic set of abstractions to help guide
+business logic that would promote the SOLID principles and be easy for new and experienced developers to understand and extend. It's not a perfect abstraction (as nothing is),
+but *can* help simplify your application's business logic by encouraging you to consider the smallest units of work required for your business logic while offering features
+like type and presence validation that help reduce or eliminate boiler plate, defensive code (nil checks anyone?). However, as with all general purpose libraries, your mileage
+will vary.
+
 There are three levels of abstraction provided by `ActionLogic`:
 
-* [`ActionTask` (the core unit of work)](#action_task)
-* [`ActionUseCase` (contains one or many `ActionTasks`)](#action_use_case)
-* [`ActionCoordinator` (contains two or more `ActionUseCases`)](#action_coordinator)
+* [`ActionTask` (a core unit of work)](#action_task)
+* [`ActionUseCase` (organizes two or more `ActionTasks`)](#action_use_case)
+* [`ActionCoordinator` (coordinates two or more `ActionUseCases`)](#action_coordinator)
 
-Each level of abstraction operates with a shared, mutable data structure referred to as a `context` and is an instance of `ActionContext`. This shared `context` is threaded through each `ActionTask`, `ActionUseCase` and / or `ActionCoordinator` until all work is completed. The resulting `context` is returned to the original caller (typically in a Rails application this will be a controller action).
+Each level of abstraction operates with a shared, mutable data structure referred to as a `context` and is an instance of `ActionContext`. This shared `context` is threaded
+through each `ActionTask`, `ActionUseCase` and / or `ActionCoordinator` until all work is completed. The resulting `context` is returned to the original caller
+(typically in a Rails application this will be a controller action). In the problem described above we might have a `ActionUseCase` for organizing the checkout order flow,
+and each of the distinct steps would be represented by a separate `ActionTask`. However, overtime it may make more sense to split apart the singular `ActionUseCase` for the order
+flow into smaller `ActionUseCases` that are isolated by their domain (users, payment processor, inventory / warehouse, email, etc.). Considering that we limit our `ActionUseCases` to
+single domains, then the `ActionCoordinator` abstraction would allow us to coordinate communiation between various `ActionUseCases` (various domains) and their specific business logic
+to fulfill all the necessary work required when a user submits a checkout order form.
+
+The diagram below illustrates the relation between `ActionTask`, `ActionUseCase` and `ActionCoordinator`, and the role of `ActionContext` as the primary, single input:
+
+<img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/overview_diagram.png" />
 
 ### ActionTask<a name="action_task"></a>
 
