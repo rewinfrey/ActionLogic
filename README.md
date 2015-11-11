@@ -77,7 +77,7 @@ Although this example is for the `ActionTask` abstraction, `ActionUseCase` and `
 
 ### ActionUseCase<a name="action_use_case"></a>
 
-As business logic grows in complexity the number of steps or tasks required to fulfill that business logic will increase. Managing those tasks while making them easy to reuse is a challenge many developers will face. `ActionUseCase` represents a layer of abstraction that organizes multiple `ActionTasks` and executes each `ActionTask` in the order they are defined. This execution of `ActionTasks` allows tasks to be composed together in a procedural execution. In order for tasks to be composed a single, shared `context` is passed to each `ActionTask`, allowing each `ActionTask` the ability to get or set attribute on the shared `context` as required by the logic defined in a given `ActionTask`.
+As business logic grows in complexity the number of steps or tasks required to fulfill that business logic tends to increase. Managing this complexity is a problem every team must face. Abstractions can help teams of varying experience levels work together and promote code that remains modular and simple to understand and extend. `ActionUseCase` represents a layer of abstraction that organizes multiple `ActionTasks` and executes each `ActionTask` in the order they are defined. Each task receives the same shared `context` so tasks can be composed together.
 
 To implement an `ActionUseCase` class you must define a `call` method and a `tasks` method. You also can specify any before, after or around validations or an error handler. The following is an example showcasing how an `ActionUseCase` class organizes the execution of multiple `ActionTasks` and defines before and after validations on the shared `context`:
 
