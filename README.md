@@ -148,7 +148,7 @@ By following the value of the shared `context` from the `ActionUseCaseExample` t
 
 To help visualize the flow of execution when an `ActionUseCase` is invoked, this diagram aims to illustrate the relationship between `ActionUseCase` and `ActionTasks` and the order in which operations are performed:
 
-<img src="https://github.com/rewinfrey/action_logic/blob/master/resources/action_use_case_diagram.png" />
+<img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_use_case_diagram.png" />
 
 ### ActionCoordinator<a name="action_coordinator"></a>
 
@@ -247,7 +247,7 @@ result = ActionCoordinatorExample.execute
 result # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true, example_usecase2=true, example_task2=true>
 ```
 
-<img src="https://github.com/rewinfrey/action_logic/blob/master/resources/action_coordinator_diagram.png" />
+<img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_coordinator_diagram.png" />
 
 ### ActionContext<a name="action_context"></a>
 
