@@ -62,7 +62,7 @@ class ActionTaskExample
   end
 end
 
-# ActionTasks are invoked by calling an `execute` static method directly on the class:
+# ActionTasks are invoked by calling an `execute` static method directly on the class with an optional hash of key value pairs:
 result = ActionTaskExample.execute(:expected_attribute1 => "example", :expected_attribute2 => 123)
 
 # The result object is the shared context object (an instance of ActionContext):
@@ -152,7 +152,102 @@ To help visualize the flow of execution when an `ActionUseCase` is invoked, this
 
 ### ActionCoordinator<a name="action_coordinator"></a>
 
+Sometimes the behavior we wish our Ruby or Rails application to provide requires us to coordinate work between various domains of our application's business logic. The `ActionCoordinator` abstraction is intended to help coordinate multiple `ActionUseCases` by allowing you to define a plan of which `ActionUseCases` to invoke depending on the outcome of each `ActionUseCase` execution. The `ActionCoordinator` abstraction is the highest level of abstraction in `ActionLogic`.
 
+To implement an `ActionCoordinator` class, you must define a `call` method in addition to a `plan` method. The purpose of the `plan` method is to define a state transition map that links together the various `ActionUseCase` classes the `ActionCoordinator` is organizing, as well as allowing you to define error or halt scenarios based on the result of each `ActionUseCase`. The following code example demonstrates a simple `ActionCoordinator`:
+
+```ruby
+class ActionCoordinatorExample
+  include ActionLogic::ActionCoordinator
+
+  def call
+    context.required_attribute1 = "required attribute 1"
+    context.required_attribute2 = "required attribute 2"
+  end
+
+  def plan
+    {
+      ActionUseCaseExample1 => { :success => ActionUseCaseExample2,
+                                 :failure => ActionUseCaseFailureExample },
+      ActionUseCaseExample2 => { :success => nil,
+                                 :failure => ActionUseCaseFailureExample },
+      ActionUseCaseFailureExample => { :success => nil }
+    }
+  end
+end
+
+class ActionUseCaseExample1
+  include ActionLogic::ActionUseCase
+
+  validates_before :required_attribute1 => { :type => :string }
+
+  def call
+    context # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2">
+    context.example_usecase1 = true
+  end
+
+  # Normally `tasks` would define multiple tasks, but in this example, I've used one ActionTask to keep the overall code example smaller
+  def tasks
+    [ActionTaskExample1]
+  end
+end
+
+class ActionUseCaseExample2
+  include ActionLogic::ActionUseCase
+
+  validates_before :required_attribute2 => { :type => :string }
+
+  def call
+    context # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true>
+    context.example_usecase2 = true
+  end
+
+  # Normally `tasks` would define multiple tasks, but in this example, I've used one ActionTask to keep the overall code example smaller
+  def tasks
+    [ActionTaskExample2]
+  end
+end
+
+# In this example, we are not calling ActionUseCaseFailureExample, but is used to illustrate the purpose of the `plan` of our ActionCoordinator
+# in the event of a failure in one of the consumed `ActionUseCases`
+class ActionUseCaseFailureExample
+  include ActionLogic::ActionUseCase
+
+  def call
+  end
+
+  def tasks
+    [ActionTaskLogFailure,
+     ActionTaskEmailFailure]
+  end
+end
+
+class ActionTaskExample1
+  include ActionLogic::ActionTask
+  validates_after :example_task1 => { :type => :boolean, :presence => true }
+
+  def call
+    context # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true>
+    context.example_task1 = true
+  end
+end
+
+class ActionTaskExample2
+  include ActionLogic::ActionTask
+  validates_after :example_task2 => { :type => :boolean, :presence => true }
+
+  def call
+    context # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true, example_usecase2=true>
+    context.example_task2 = true
+  end
+end
+
+result = ActionCoordinatorExample.execute
+
+result # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true, example_usecase2=true, example_task2=true>
+```
+
+<img src="https://github.com/rewinfrey/action_logic/blob/master/resources/action_coordinator_diagram.png" />
 
 ### ActionContext<a name="action_context"></a>
 
