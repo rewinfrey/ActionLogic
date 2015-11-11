@@ -46,7 +46,7 @@ Each level of abstraction operates with a shared, mutable data structure referre
 
 At the core of every `ActionLogic` work flow is an `ActionTask`. These classes are the lowest level of abstraction in `ActionLogic` and are where concrete work is performed. All `ActionTasks` conform to the same structure and incorporate all features of `ActionLogic` including validations and error handling.
 
-The following is a simple example of an `ActionTask` that includes before and after validations, and also demonstrates how an `ActionTask` is invoked :
+To implement an `ActionTask` class you must define a `call` method. You can also specify any before, after or around validations or an error handler. The following code example demonstrates an `ActionTask` class that includes before and after validations, and also demonstrates how an `ActionTask` is invoked :
 
 ```ruby
 class ActionTaskExample
@@ -62,8 +62,10 @@ class ActionTaskExample
   end
 end
 
+# ActionTasks are invoked by calling an `execute` static method directly on the class:
 result = ActionTaskExample.execute(:expected_attribute1 => "example", :expected_attribute2 => 123)
 
+# The result object is the shared context object (an instance of ActionContext):
 result # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_attribute1="New value from context attributes: example 123">
 ```
 
@@ -149,6 +151,8 @@ To help visualize the flow of execution when an `ActionUseCase` is invoked, this
 <img src="https://github.com/rewinfrey/action_logic/blob/master/resources/action_use_case_diagram.png" />
 
 ### ActionCoordinator<a name="action_coordinator"></a>
+
+
 
 ### ActionContext<a name="action_context"></a>
 
