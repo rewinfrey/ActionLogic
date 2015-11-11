@@ -71,7 +71,7 @@ The `ActionTaskExample` is invoked using the static method `execute` which takes
 
 The diagram below is a visual representation of how an `ActionTask` is evaluted when its `execute` method is invoked from a caller:
 
-<img src="https://github.com/rewinfrey/action_logic/blob/master/resources/action_task_diagram.png" height="400px" />
+<img src="https://github.com/rewinfrey/action_logic/blob/master/resources/action_task_diagram.png" />
 
 Although this example is for the `ActionTask` abstraction, `ActionUseCase` and `ActionCoordinator` follow the same pattern. The difference is that `ActionUseCase` is designed to organize multiple `ActionTasks`, and `ActionCoordinator` is designed to organize many `ActionUseCases`.
 
