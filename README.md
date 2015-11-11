@@ -38,7 +38,7 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 Consider a traditional e-commerce Rails application. Users can shop online and add items to their shopping cart until they are ready to check out.
 The happy path scenario might go something like this: the user submits their order form, an orders controller action records the order in the database,
 submits the order total to a payment processor, waits for a response from the payment processor, and upon a success response from the payment processor sends
-an order confirmation email to the user, the order is send internally to the warehouse for fulfillment which requires creating various records in the database,
+an order confirmation email to the user, the order is sent internally to the warehouse for fulfillment which requires creating various records in the database,
 and finally the server responds to the initial POST request with a rendered html page including a message indicating the order was successfully processed. In this
 work flow there are at least 7 distinct steps or tasks that must be satisfied in order for the application's business logic to be considered correct according
 to specifications.
@@ -49,7 +49,7 @@ What happens when that user that is notorious for having 100 tabs open forgets t
 includes an item that your e-commerce store no longer stocks? What happens if an item is sold out? The edge cases and exception emails pile up, and as each one comes in
 you add more and more logic to that controller action.
 
-What once was a simple controller action designed with only the happy path of a successful checkout in mind has now become a 100 lines long with 5 to 10 levels
+What once was a simple controller action designed with only the happy path of a successful checkout in mind has now become 100 lines long with 5 to 10 levels
 of nested if statements. The voice of Uncle Bob starts ringing in your ears and you know there must be a better way. You think on it for awhile and consider not only
 the technical challenges of refactoring this code, but you'd also like to make this code reusable and modular. You want this code to be easy to test and easy to maintain.
 You want to honor the SOLID principles by writing classes that are singularly focused and easy to extend. You reason these new classes should only have to change if the
@@ -88,7 +88,7 @@ flow into smaller `ActionUseCases` that are isolated by their domain (users, pay
 single domains, then the `ActionCoordinator` abstraction would allow us to coordinate communiation between various `ActionUseCases` (various domains) and their specific business logic
 to fulfill all the necessary work required when a user submits a checkout order form.
 
-The diagram below illustrates the relation between `ActionTask`, `ActionUseCase` and `ActionCoordinator`, and the role of `ActionContext` as the primary, single input:
+The diagram below illustrates how the `ActionTask`, `ActionUseCase` and `ActionCoordinator` abstractions work together, and the role of `ActionContext` as the primary, single input:
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/overview_diagram.png" />
 
