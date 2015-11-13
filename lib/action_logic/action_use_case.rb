@@ -15,6 +15,8 @@ module ActionLogic
     module ClassMethods
       def execute(params = {})
         around(params) do |execution_context|
+          raise ActionLogic::InvalidUseCaseError.new("ActionUseCase requires at least one ActionTask") if execution_context.tasks.empty?
+
           execution_context.call
 
           execution_context.tasks.reduce(execution_context.context) do |context, task|
