@@ -37,6 +37,87 @@ class SimpleTestUseCase3
   end
 end
 
+class NoTaskTestUseCase
+  include ActionLogic::ActionUseCase
+
+  def call
+  end
+
+  def tasks
+    []
+  end
+end
+
+class ValidateAroundTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_around Constants::ALL_VALIDATIONS
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundCustomTypeTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_around :custom_type => { :type => :customtype1, :presence => true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundUnrecognizablePresenceTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_around :integer_test => { :presence => :true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundPresenceTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_around :integer_test => { :presence => true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundCustomPresenceTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_around :array_test => { :presence => ->(array_test) { array_test.any? } }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateBeforeTestUseCase
   include ActionLogic::ActionUseCase
 
@@ -46,7 +127,8 @@ class ValidateBeforeTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -59,7 +141,8 @@ class ValidateBeforePresenceTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -72,7 +155,8 @@ class ValidateBeforeCustomPresenceTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -85,7 +169,8 @@ class ValidateBeforeCustomTypeTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -98,7 +183,8 @@ class ValidateBeforeUnrecognizablePresenceTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -119,7 +205,7 @@ class ValidateAfterTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask3]
   end
 end
 
@@ -132,7 +218,8 @@ class ValidateAfterMissingAttributesTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -153,7 +240,8 @@ class ValidateAfterInvalidTypeTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -167,7 +255,8 @@ class ValidateAfterCustomTypeTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -181,7 +270,8 @@ class ValidateAfterInvalidCustomTypeTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -195,7 +285,7 @@ class ValidateAfterPresenceTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask3]
   end
 end
 
@@ -209,7 +299,8 @@ class ValidateAfterInvalidPresenceTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -223,7 +314,8 @@ class ValidateAfterCustomPresenceTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -237,7 +329,8 @@ class ValidateAfterInvalidCustomPresenceTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
@@ -251,7 +344,8 @@ class ValidateAfterUnrecognizablePresenceTestUseCase
   end
 
   def tasks
-    []
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
   end
 end
 
