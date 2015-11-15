@@ -360,12 +360,48 @@ result # => #<ActionLogic::ActionContext status=:success, required_attribute1="r
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_coordinator_diagram.png" />
 
 ### Succeeding an `ActionContext`<a name="succeed_context"></a>
+By default, the value of the `status` attribute of instances of `ActionContext` is `:success`. Normally this is useful information for the caller of an `ActionTask`, `ActionUseCase` or `ActionCoordinator`
+because it informs the caller that the various execution context(s) were successful. In other words, a `:success` status indicates that none of the execution contexts had a failure
+or halted execution.
 
 ### Failing an `ActionContext`<a name="fail_context"></a>
+Using `context.fail!` does two important things: it immediately stops the execution of any proceeding business logic (prevents any additional `ActionTasks` from executing)
+and also sets the status of the `context` as `:failure`. This status is most applicable to the caller or an `ActionCoordinator` that might have a plan specifically for a `:failure`
+status of a resulting `ActionUseCase`.
 
 ### Halting an `ActionContext`<a name="halt_context"></a>
+Like, failing a context, Using `context.halt!` does two important things: it immediately halts the execution of any proceeding business logic (prevents any additional `ActionTasks`
+from executing) and also sets the status of the `context` as `:halted`. The caller may use that information to define branching logic or an `ActionCoordinator` may use that
+information as part of its `plan`.
 
 ### Custom `ActionContext` Status<a name="custom_status"></a>
+It is worthwhile to point out that you should not feel limited to only using the three provided statuses of `:success`, `:failure` or `:halted`. It is easy to implement your
+own system of statuses if you prefer. For example, consider a system that is used to defining various status codes or disposition codes to indicate the result of some business
+logic. Instances of `ActionContext` can be leveraged to indicate these disposition codes by using the `status` attribute, or by defining custom attributes. You are encouraged
+to expirement and play with the flexibility provided to you by `ActionContext` in determining what is optimal for your given code contexts and your team.
+
+```ruby
+class RailsControllerExample < ApplicationController
+	def create
+		case create_use_case.status
+		when :disposition_1 then ActionUseCaseSuccess1.execute(create_use_case)
+		when :disposition_2 then ActionUseCaseSuccess2.execute(create_use_case)
+		when :disposition_9 then ActionUseCaseFailure.execute(create_use_case)
+		else
+		  ActionUseCaseDefault.execute(create_use_case)
+		end
+	end
+
+	private
+
+	def create_use_case
+	  @create_use_case ||= ActionUseCaseExample.execute(params)
+	end
+end
+```
+
+Although this contrived example would be ideal for an `ActionCoordinator` (because the result of `ActionUseCaseExample` drives the execution of the next `ActionUseCase`), this
+example serves to show that `status` can be used with custom disposition codes to drive branching behavior.
 
 ### Error Handling<a name="error_handling"></a>
 
