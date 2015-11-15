@@ -359,6 +359,30 @@ result # => #<ActionLogic::ActionContext status=:success, required_attribute1="r
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_coordinator_diagram.png" />
 
+### Succeeding an `ActionContext`<a name="succeed_context"></a>
+
+### Failing an `ActionContext`<a name="fail_context"></a>
+
+### Halting an `ActionContext`<a name="halt_context"></a>
+
+### Custom `ActionContext` Status<a name="custom_status"></a>
+
+### Error Handling<a name="error_handling"></a>
+
+### Type Validations<a name="type_validations"></a>
+
+### Custom Type Validations<a name="custom_type_validations"></a>
+
+### Presence Validations<a name="presence_validations"></a>
+
+### Custom Presence Validations<a name="custom_presence_validations"></a>
+
+### Before Validations<a name="before_validations"></a>
+
+### After Validations<a name="after_validations"></a>
+
+### Around Validations<a name="around_validations"></a>
+
 ### Features<a name="features"</a>
 
 `ActionLogic` provides a number of convenience functionality that supports simple to complex business logic work flows while maintaining a simple and easy to understand API:
