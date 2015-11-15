@@ -82,17 +82,75 @@ There are three levels of abstraction provided by `ActionLogic`:
 
 Each level of abstraction operates with a shared, mutable data structure referred to as a `context` and is an instance of `ActionContext`. This shared `context` is threaded
 through each `ActionTask`, `ActionUseCase` and / or `ActionCoordinator` until all work is completed. The resulting `context` is returned to the original caller
-(typically in a Rails application this will be a controller action). In the problem described above we might have a `ActionUseCase` for organizing the checkout order flow,
+(typically in a Rails application this will be a controller action). In the problem described above we might have an `ActionUseCase` for organizing the checkout order flow,
 and each of the distinct steps would be represented by a separate `ActionTask`. However, overtime it may make more sense to split apart the singular `ActionUseCase` for the order
 flow into smaller `ActionUseCases` that are isolated by their domain (users, payment processor, inventory / warehouse, email, etc.). Considering that we limit our `ActionUseCases` to
-single domains, then the `ActionCoordinator` abstraction would allow us to coordinate communiation between various `ActionUseCases` (various domains) and their specific business logic
-to fulfill all the necessary work required when a user submits a checkout order form.
+single domains, then the `ActionCoordinator` abstraction would allow us to coordinate communication between the `ActionUseCases` and their `ActionTasks` to fulfill the necessary
+work required when a user submits a checkout order form.
 
 The diagram below illustrates how the `ActionTask`, `ActionUseCase` and `ActionCoordinator` abstractions work together, and the role of `ActionContext` as the primary, single input:
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/overview_diagram.png" />
 
 ### ActionContext<a name="action_context"></a>
+
+The glue that binds the three layers of abstraction provided in `ActionLogic` is `ActionContext`. Anytime an `ActionTask`, `ActionUseCase` or `ActionCoordinator` is invoked
+an instance of `ActionContext` is created and passed as an input parameter to the receiving execution context. Because each of the three abstractions works in the same way
+with `ActionContext`, it is intended to be a relatively simple "learn once understand everywhere" abstraction.
+
+Instances of `ActionContext` are always referred to within the body of `call` methods defined in any `ActionTask`, `ActionUseCase` or `ActionCoordinator` as `context`. An
+instance of `ActionContext` is a thin wrapper around Ruby's standard library [`OpenStruct`](http://ruby-doc.org/stdlib-2.0.0/libdoc/ostruct/rdoc/OpenStruct.html). This allows
+instances of `ActionContext` to be maximally flexible. Arbitrary attributes can be defined on a `context` and their values can be of any type.
+
+In addition to allowing arbitrary attributes and values to be defined on a `context`, instances of `ActionContext` also conform to a set of simple rules:
+
+* Every `context` instance is instantiated with a default `status` of `:success`
+* A `context` responds to `success?` which returns true if the `status` is `:success`
+* A `context` responds to `fail!` which sets the `status` to `:failure`
+* A `context` respond to `fail?` which returns true if the `status` is `:failure`
+* `contexts` rsepond to `halt!` which sets the `status` to `:halted`
+* `contexts` respond to `halted?` which returns true if the `status` is `:halted`
+
+Enough with the words, let's look at some code! The following shows an instance of `ActionContext` and its various abilities:
+
+```ruby
+context = ActionLogic::ActionContext.new
+
+context # => #<ActionLogic::ActionContext status=:success>
+
+# default status is `:success`:
+context.status # => :success
+
+# defining a new attribute called `name` with the value `"Example"`:
+context.name = "Example"
+
+# retrieving the value of the `name` attribute:
+context.name # => "Example"
+
+# you can set attributes to anything, including Procs:
+context.lambda_example = -> { "here" }
+
+context.lambda_example # => #<Proc:0x007f8d6b0a9ba0@-:11 (lambda)>
+
+context.lambda_example.call # => "here"
+
+# contexts can be failed:
+context.fail!
+
+context.status # => :failure
+
+context.failure? # => true
+
+# contexts can also be halted:
+context.halt!
+
+context.status # => :halted
+
+context.halted? # => true
+```
+
+Now that we have seen what `ActionContext` can do, let's take a look at the lowest level of absraction in `ActionLogic` that consumes instances of `ActionContext`, the `ActionTask`
+abstraction.
 
 ### ActionTask<a name="action_task"></a>
 
