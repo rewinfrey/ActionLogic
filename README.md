@@ -382,7 +382,7 @@ to expirement and play with the flexibility provided to you by `ActionContext` i
 
 ```ruby
 class RailsControllerExample < ApplicationController
-	def create
+  def create
 		case create_use_case.status
 		when :disposition_1 then ActionUseCaseSuccess1.execute(create_use_case)
 		when :disposition_2 then ActionUseCaseSuccess2.execute(create_use_case)
@@ -404,6 +404,42 @@ Although this contrived example would be ideal for an `ActionCoordinator` (becau
 example serves to show that `status` can be used with custom disposition codes to drive branching behavior.
 
 ### Error Handling<a name="error_handling"></a>
+During execution of an `ActionTask`, `ActionUseCase` or `ActionCoordinator` you may wish to define custom behavior for handling errors. Within any of these classes
+you can define an `error` method that receives as its input the error exception. Invoking an `error` method does not make any assumptions about the `status` of the
+underlying `context`. Execution of the `ActionTask`, `ActionUseCase` or `ActionCoordinator` also stops after the `error` method returns, and execution of the work
+flow continues as normal unless the `context` is failed or halted.
+
+The following example is a simple illustration of how an `error` method is invoked for an `ActionTask`:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  def call
+    context.before_raise = true
+    raise
+    context.after_raise = true
+  end
+
+  def error(e)
+    context.e = "the error is passed in as an input parameter: #{e}"
+  end
+end
+
+result = ActionTaskExample.execute
+
+# the status of the context is not mutated
+result.status # => :success
+
+result.e # => "the error is passed in as an input parameter: "
+
+result.before_raise # => true
+
+result.after_raise # => nil
+```
+
+It is important to note that defining an `error` method is **not** required. If at any point in the execution of an `ActionTask`, `ActionUseCase` or `ActionCoordinator`
+an uncaught exception is thrown **and** an `error` method is **not** defined, the exception is raised to the caller.
 
 ### Type Validations<a name="type_validations"></a>
 
