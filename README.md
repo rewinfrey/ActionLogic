@@ -441,9 +441,162 @@ result.after_raise # => nil
 It is important to note that defining an `error` method is **not** required. If at any point in the execution of an `ActionTask`, `ActionUseCase` or `ActionCoordinator`
 an uncaught exception is thrown **and** an `error` method is **not** defined, the exception is raised to the caller.
 
+### Attribute Validations<a name="attribute_validations"></a>
+The most simple and basic type of validation offered by `ActionLogic` is attribute validation. To require that an attribute be defined on an instance of `ActionContext`, you
+need only specify the name of the attribute and an empty hash with one of the three validation types (before, after or around):
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_before :required_attribute1 => {}
+
+  def call
+  end
+end
+
+result = ActionTaskExample.execute(:required_attribute1 => true)
+
+result.status # => :success
+
+result.required_attribute1 # => true
+```
+
+However, in the above example, if we were to invoke the `ActionTaskExample` without the `required_attribute1` parameter, the before validation would fail and raise
+an `ActionLogic::MissingAttributeError` and also detail which attribute is missing:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_before :required_attribute1 => {}
+
+  def call
+  end
+end
+
+ActionTaskExample.execute # ~> [:required_attribute1] (ActionLogic::MissingAttributeError)
+```
+
+Attribute validations are defined in the same way regardless of the timing of the validation ([before](#before_validations), [after](#after_validations) or
+[around](#around_validations)). Please refer to the relevant sections for examples of their usage.
+
 ### Type Validations<a name="type_validations"></a>
+In addition to attribute validations, `ActionLogic` also allows you to validate against the type of the value of the attribute you expect to be defined in an instance
+of `ActionContext`. To understand the default types `ActionLogic` validates against, please see the following example:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_after :integer_test => { :type => :integer },
+                  :float_test   => { :type => :float },
+                  :string_test  => { :type => :string },
+                  :bool_test    => { :type => :boolean },
+                  :hash_test    => { :type => :hash },
+                  :array_test   => { :type => :array },
+                  :symbol_test  => { :type => :symbol },
+                  :nil_test     => { :type => :nil }
+
+  def call
+    context.integer_test = 123
+    context.float_test   = 1.0
+    context.string_test  = "test"
+    context.bool_test    = true
+    context.hash_test    = {}
+    context.array_test   = []
+    context.symbol_test  = :symbol
+    context.nil_test     = nil
+  end
+end
+
+result = ActionTaskExample.execute
+
+result # => #<ActionLogic::ActionContext status=:success,
+            #                            integer_test=123,
+            #                            float_test=1.0,
+            #                            string_test="test",
+            #                            bool_test=true,
+            #                            hash_test={},
+            #                            array_test=[],
+            #                            symbol_test=:symbol,
+            #                            nil_test=nil>
+```
+
+It's important to point out that Ruby's `true` and `false` are not `Boolean` but `TrueClass` and `FalseClass` respectively. Additionally, `nil`'s type is `NilClass` in Ruby.
+To simplify the way these validations work for `true` or `false`, type validations expect the symbol `:boolean` as the `:type`. `nil` is validated simply with the `:nil` `:type`.
+
+As we saw with attribute validations, if an attribute's value does not conform to the type expected, `ActionLogic` will raise an `ActionLogic::AttributeTypeError`
+with a detailed description about which attribute's value failed the validation:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_after :integer_test => { :type => :integer }
+
+  def call
+    context.integer_test = 1.0
+  end
+end
+
+ActionTaskExample.execute # ~> ["Attribute: integer_test with value: 1.0 was expected to be of type integer but is float"] (ActionLogic::AttributeTypeError)
+```
+
+In addition to the above default types it is possible to also validate against user defined types.
 
 ### Custom Type Validations<a name="custom_type_validations"></a>
+If you would like to validate the type of attributes on a given `context` with your applications custom classes, `ActionLogic` is happy to provide that functionality.
+
+Let's consider the following example:
+
+```ruby
+class ExampleClass
+end
+
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_after :example_attribute => { :type => :exampleclass }
+
+  def call
+    context.example_attribute = ExampleClass.new
+  end
+end
+
+result = ActionTaskExample.execute
+
+result # => #<ActionLogic::ActionContext status=:success, example_attribute=#<ExampleClass:0x007f95d1922bd8>>
+```
+
+In the above example, a custom class `ExampleClass` is defined. In order to type validate against this class, the required format for the name of the class is simply
+the lowercase version of the class as a symbol. `ExampleClass` becomes `:exampleclass`, `UserAttributes` becomes `:userattributes`, and so on.
+
+If a custom type validation is fails, `ActionLogic` provides the same `ActionLogic::AttributeTypeError` with a detailed explanation about what attribute is in violation
+of the type validation:
+
+```ruby
+class ExampleClass
+end
+
+class OtherClass
+end
+
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_after :example_attribute => { :type => :exampleclass }
+
+  def call
+    context.example_attribute = OtherClass.new
+  end
+end
+
+ActionTaskExample.execute # ~> ["Attribute: example_attribute with value: #<OtherClass:0x007fb5ca04edb8> was expected to be of type exampleclass but is otherclass"] (ActionLogic::AttributeTypeError)
+```
+
+Attribute and type validations are very helpful, but in some situations this is not enough. Additionally, `ActionLogic` provides presence validation so you can also verify that
+a given attribute on a context not only has the correct type, but also has a value that is considered `present`.
 
 ### Presence Validations<a name="presence_validations"></a>
 
@@ -512,33 +665,4 @@ params = {
 params[:ids] = [1, 2, 3, 4]
 
 ExampleActionTask.execute(params) # => #<ActionLogic::ActionContext attribute1=1, attribute2="another example string value", ids=[1, 2, 3, 4], status=:success, attribute3=true, attribute4="an example string value">
-```
-
-### Supported Types For Validation
-
-`ActionLogic` supports the following built in Ruby data types:
-
-* :string
-* :boolean (rather than TrueClass or FalseClass)
-* :float
-* :integer (rather than FixNum)
-* :array
-* :hash
-* :nil (rather than NilClass)
-
-Additionally, `ActionLogic` allows you to also validate user defined types (custom types):
-
-```ruby
-
-class CustomType1
-end
-
-class ExampleActionTask
-  include ActionLogic::ActionTask
-
-  :validates_before { :custom_type_attribute => { :type => :customtype1 } }
-
-  def call
-  end
-end
 ```
