@@ -422,7 +422,7 @@ class ActionTaskExample
   end
 
   def error(e)
-    context.e = "the error is passed in as an input parameter: #{e.class}"
+    context.error = "the error is passed in as an input parameter: #{e.class}"
   end
 end
 
@@ -431,7 +431,7 @@ result = ActionTaskExample.execute
 # the status of the context is not mutated
 result.status # => :success
 
-result.e # => "the error is passed in as an input parameter: RuntimeError"
+result.error # => "the error is passed in as an input parameter: RuntimeError"
 
 result.before_raise # => true
 
@@ -546,7 +546,7 @@ ActionTaskExample.execute # ~> ["Attribute: integer_test with value: 1.0 was exp
 In addition to the above default types it is possible to also validate against user defined types.
 
 ### Custom Type Validations
-If you would like to validate the type of attributes on a given `context` with your applications custom classes, `ActionLogic` is happy to provide that functionality.
+If you would like to validate the type of attributes on a given `context` with your application's classes, `ActionLogic` is happy to provide that functionality.
 
 Let's consider the following example:
 
