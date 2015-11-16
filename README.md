@@ -369,19 +369,19 @@ Using `context.fail!` does two important things: it immediately stops the execut
 and also sets the status of the `context` as `:failure`. This status is most applicable to the caller or an `ActionCoordinator` that might have a plan specifically for a `:failure`
 status of a resulting `ActionUseCase`.
 
-The folling is a simple example to show how a `context` is failed within a `call` method:
+The following is a simple example to show how a `context` is failed within a `call` method:
 
 ```ruby
 class ActionTaskExample
   include ActionLogic::ActionTask
 
   def call
-    if invalid?
+    if failure_condition?
       context.fail!
     end
   end
 
-  def invalid?
+  def failure_condition?
     true
   end
 end
@@ -398,12 +398,12 @@ class ActionTaskExample
   include ActionLogic::ActionTask
 
   def call
-    if invalid?
+    if failure_condition?
       context.fail! "Something was invalid"
     end
   end
 
-  def invalid?
+  def failure_condition?
     true
   end
 end
@@ -422,6 +422,57 @@ that failure message via the `message` attribute defined on the returned `contex
 Like, failing a context, Using `context.halt!` does two important things: it immediately halts the execution of any proceeding business logic (prevents any additional `ActionTasks`
 from executing) and also sets the status of the `context` as `:halted`. The caller may use that information to define branching logic or an `ActionCoordinator` may use that
 information as part of its `plan`.
+
+However, unlike failing a `context`, halting is designed to indicate that no more processing is required, but otherwise execution was successful.
+
+The following is a simple example to show how a `context` is halted within a `call` method:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  def call
+    if halt_condition?
+      context.halt!
+    end
+  end
+
+  def halt_condition?
+    true
+  end
+end
+
+result = ActionTaskExample.execute
+
+result # => #<ActionLogic::ActionContext status=:halted, message="">
+```
+
+When failing a `context` it is possible to also specify a message:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  def call
+    if halt_condition?
+      context.halt! "Something required a halt"
+    end
+  end
+
+  def halt_condition?
+    true
+  end
+end
+
+result = ActionTaskExample.execute
+
+result # => #<ActionLogic::ActionContext status=:halted, message="Something required a halt">
+
+result.message # => "Something required a halt"
+```
+
+From the above example we see how it is possible to `halt!` a `context` while also specifying a clarifying message about the halt condition. Later, we retrieve
+that halt message via the `message` attribute defined on the returned `context`.
 
 ### Custom `ActionContext` Status
 It is worthwhile to point out that you should not feel limited to only using the three provided statuses of `:success`, `:failure` or `:halted`. It is easy to implement your
