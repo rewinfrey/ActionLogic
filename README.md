@@ -107,9 +107,9 @@ In addition to allowing arbitrary attributes and values to be defined on a `cont
 * Every `context` instance is instantiated with a default `status` of `:success`
 * A `context` responds to `success?` which returns true if the `status` is `:success`
 * A `context` responds to `fail!` which sets the `status` to `:failure`
-* A `context` respond to `fail?` which returns true if the `status` is `:failure`
-* `contexts` rsepond to `halt!` which sets the `status` to `:halted`
-* `contexts` respond to `halted?` which returns true if the `status` is `:halted`
+* A `context` responds to `fail?` which returns true if the `status` is `:failure`
+* A `context` rseponds to `halt!` which sets the `status` to `:halted`
+* A `context` responds to `halted?` which returns true if the `status` is `:halted`
 
 Enough with the words, let's look at some code! The following shows an instance of `ActionContext` and its various abilities:
 
