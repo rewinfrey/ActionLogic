@@ -15,25 +15,25 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 
 * [Backstory](#backstory)
 * [Overview](#overview)
-* [`ActionContext`](#action_context)
-* [`ActionTask`](#action_task)
-* [`ActionUseCase`](#action_use_case)
-* [`ActionCoordinator`](#action_coordinator)
-* [Succeeding an `ActionContext`](#succeed_context)
-* [Failing an `ActionContext`](#fail_context)
-* [Halting an `ActionContext`](#halt_context)
-* [Custom `ActionContext` Status](#custom_status)
-* [Error Handling](#error_handling)
-* [Attribute Validations](#attribute_validations)
-* [Type Validations](#type_validations)
-* [Custom Type Validations](#custom_type_validations)
-* [Presence Validations](#presence_validations)
-* [Custom Presence Validations](#custom_presence_validations)
-* [Before Validations](#before_validations)
-* [After Validations](#after_validations)
-* [Around Validations](#around_validations)
+* [`ActionContext`](#actioncontext)
+* [`ActionTask`](#actiontask)
+* [`ActionUseCase`](#actionusecase)
+* [`ActionCoordinator`](#actioncoordinator)
+* [Succeeding an `ActionContext`](#succeeding-an-actioncontext)
+* [Failing an `ActionContext`](#failing-an-actioncontext)
+* [Halting an `ActionContext`](#halting-an-actioncontext)
+* [Custom `ActionContext` Status](#custom-actioncontext)
+* [Error Handling](#error-handling)
+* [Attribute Validations](#attribute-validations)
+* [Type Validations](#type-validations)
+* [Custom Type Validations](#custom-type-validations)
+* [Presence Validations](#presence-validations)
+* [Custom Presence Validations](#custom-presence-validations)
+* [Before Validations](#before-validations)
+* [After Validations](#after-validations)
+* [Around Validations](#around-validations)
 
-### Backstory<a name="backstory"></a>
+### Backstory
 
 Consider a traditional e-commerce Rails application. Users can shop online and add items to their shopping cart until they are ready to check out.
 The happy path scenario might go something like this: the user submits their order form, an orders controller action records the order in the database,
@@ -72,7 +72,7 @@ but *can* help simplify your application's business logic by encouraging you to 
 like type and presence validation that help reduce or eliminate boiler plate, defensive code (nil checks anyone?). However, as with all general purpose libraries, your mileage
 will vary.
 
-### Overview<a name="overview"></a>
+### Overview
 
 There are three levels of abstraction provided by `ActionLogic`:
 
@@ -92,7 +92,7 @@ The diagram below illustrates how the `ActionTask`, `ActionUseCase` and `ActionC
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/overview_diagram.png" />
 
-### ActionContext<a name="action_context"></a>
+### ActionContext
 
 The glue that binds the three layers of abstraction provided in `ActionLogic` is `ActionContext`. Anytime an `ActionTask`, `ActionUseCase` or `ActionCoordinator` is invoked
 an instance of `ActionContext` is created and passed as an input parameter to the receiving execution context. Because each of the three abstractions works in the same way
@@ -152,7 +152,7 @@ context.halted? # => true
 Now that we have seen what `ActionContext` can do, let's take a look at the lowest level of absraction in `ActionLogic` that consumes instances of `ActionContext`, the `ActionTask`
 abstraction.
 
-### ActionTask<a name="action_task"></a>
+### ActionTask
 
 At the core of every `ActionLogic` work flow is an `ActionTask`. These classes are the lowest level of abstraction in `ActionLogic` and are where concrete work is performed. All `ActionTasks` conform to the same structure and incorporate all features of `ActionLogic` including validations and error handling.
 
@@ -187,7 +187,7 @@ The diagram below is a visual representation of how an `ActionTask` is evaluted 
 
 Although this example is for the `ActionTask` abstraction, `ActionUseCase` and `ActionCoordinator` follow the same pattern. The difference is that `ActionUseCase` is designed to organize multiple `ActionTasks`, and `ActionCoordinator` is designed to organize many `ActionUseCases`.
 
-### ActionUseCase<a name="action_use_case"></a>
+### ActionUseCase
 
 As business logic grows in complexity the number of steps or tasks required to fulfill that business logic tends to increase. Managing this complexity is a problem every team must face. Abstractions can help teams of varying experience levels work together and promote code that remains modular and simple to understand and extend. `ActionUseCase` represents a layer of abstraction that organizes multiple `ActionTasks` and executes each `ActionTask` in the order they are defined. Each task receives the same shared `context` so tasks can be composed together.
 
@@ -260,7 +260,7 @@ To help visualize the flow of execution when an `ActionUseCase` is invoked, this
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_use_case_diagram.png" />
 
-### ActionCoordinator<a name="action_coordinator"></a>
+### ActionCoordinator
 
 Sometimes the behavior we wish our Ruby or Rails application to provide requires us to coordinate work between various domains of our application's business logic. The `ActionCoordinator` abstraction is intended to help coordinate multiple `ActionUseCases` by allowing you to define a plan of which `ActionUseCases` to invoke depending on the outcome of each `ActionUseCase` execution. The `ActionCoordinator` abstraction is the highest level of abstraction in `ActionLogic`.
 
@@ -359,22 +359,22 @@ result # => #<ActionLogic::ActionContext status=:success, required_attribute1="r
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_coordinator_diagram.png" />
 
-### Succeeding an `ActionContext`<a name="succeed_context"></a>
+### Succeeding an `ActionContext`
 By default, the value of the `status` attribute of instances of `ActionContext` is `:success`. Normally this is useful information for the caller of an `ActionTask`, `ActionUseCase` or `ActionCoordinator`
 because it informs the caller that the various execution context(s) were successful. In other words, a `:success` status indicates that none of the execution contexts had a failure
 or halted execution.
 
-### Failing an `ActionContext`<a name="fail_context"></a>
+### Failing an `ActionContext`
 Using `context.fail!` does two important things: it immediately stops the execution of any proceeding business logic (prevents any additional `ActionTasks` from executing)
 and also sets the status of the `context` as `:failure`. This status is most applicable to the caller or an `ActionCoordinator` that might have a plan specifically for a `:failure`
 status of a resulting `ActionUseCase`.
 
-### Halting an `ActionContext`<a name="halt_context"></a>
+### Halting an `ActionContext`
 Like, failing a context, Using `context.halt!` does two important things: it immediately halts the execution of any proceeding business logic (prevents any additional `ActionTasks`
 from executing) and also sets the status of the `context` as `:halted`. The caller may use that information to define branching logic or an `ActionCoordinator` may use that
 information as part of its `plan`.
 
-### Custom `ActionContext` Status<a name="custom_status"></a>
+### Custom `ActionContext` Status
 It is worthwhile to point out that you should not feel limited to only using the three provided statuses of `:success`, `:failure` or `:halted`. It is easy to implement your
 own system of statuses if you prefer. For example, consider a system that is used to defining various status codes or disposition codes to indicate the result of some business
 logic. Instances of `ActionContext` can be leveraged to indicate these disposition codes by using the `status` attribute, or by defining custom attributes. You are encouraged
@@ -403,7 +403,7 @@ end
 Although this contrived example would be ideal for an `ActionCoordinator` (because the result of `ActionUseCaseExample` drives the execution of the next `ActionUseCase`), this
 example serves to show that `status` can be used with custom disposition codes to drive branching behavior.
 
-### Error Handling<a name="error_handling"></a>
+### Error Handling
 During execution of an `ActionTask`, `ActionUseCase` or `ActionCoordinator` you may wish to define custom behavior for handling errors. Within any of these classes
 you can define an `error` method that receives as its input the error exception. Invoking an `error` method does not make any assumptions about the `status` of the
 underlying `context`. Execution of the `ActionTask`, `ActionUseCase` or `ActionCoordinator` also stops after the `error` method returns, and execution of the work
@@ -441,7 +441,7 @@ result.after_raise # => nil
 It is important to note that defining an `error` method is **not** required. If at any point in the execution of an `ActionTask`, `ActionUseCase` or `ActionCoordinator`
 an uncaught exception is thrown **and** an `error` method is **not** defined, the exception is raised to the caller.
 
-### Attribute Validations<a name="attribute_validations"></a>
+### Attribute Validations
 The most simple and basic type of validation offered by `ActionLogic` is attribute validation. To require that an attribute be defined on an instance of `ActionContext`, you
 need only specify the name of the attribute and an empty hash with one of the three validation types (before, after or around):
 
@@ -481,7 +481,7 @@ ActionTaskExample.execute # ~> [:required_attribute1] (ActionLogic::MissingAttri
 Attribute validations are defined in the same way regardless of the timing of the validation ([before](#before_validations), [after](#after_validations) or
 [around](#around_validations)). Please refer to the relevant sections for examples of their usage.
 
-### Type Validations<a name="type_validations"></a>
+### Type Validations
 In addition to attribute validations, `ActionLogic` also allows you to validate against the type of the value of the attribute you expect to be defined in an instance
 of `ActionContext`. To understand the default types `ActionLogic` validates against, please see the following example:
 
@@ -545,7 +545,7 @@ ActionTaskExample.execute # ~> ["Attribute: integer_test with value: 1.0 was exp
 
 In addition to the above default types it is possible to also validate against user defined types.
 
-### Custom Type Validations<a name="custom_type_validations"></a>
+### Custom Type Validations
 If you would like to validate the type of attributes on a given `context` with your applications custom classes, `ActionLogic` is happy to provide that functionality.
 
 Let's consider the following example:
@@ -598,17 +598,17 @@ ActionTaskExample.execute # ~> ["Attribute: example_attribute with value: #<Othe
 Attribute and type validations are very helpful, but in some situations this is not enough. Additionally, `ActionLogic` provides presence validation so you can also verify that
 a given attribute on a context not only has the correct type, but also has a value that is considered `present`.
 
-### Presence Validations<a name="presence_validations"></a>
+### Presence Validations
 
-### Custom Presence Validations<a name="custom_presence_validations"></a>
+### Custom Presence Validations
 
-### Before Validations<a name="before_validations"></a>
+### Before Validations
 
-### After Validations<a name="after_validations"></a>
+### After Validations
 
-### Around Validations<a name="around_validations"></a>
+### Around Validations
 
-### Features<a name="features"</a>
+### Features
 
 `ActionLogic` provides a number of convenience functionality that supports simple to complex business logic work flows while maintaining a simple and easy to understand API:
 
@@ -616,7 +616,7 @@ a given attribute on a context not only has the correct type, but also has a val
 * Custom error handling defined as a callback
 * Prematurely halt or fail a workflow
 
-### Validations<a name="validations"></a>
+### Validations
 
 Validating that a shared `context` contains the necessary attributes (parameters) becomes increasingly important as your application grows in complexity and `ActionTask` or `ActionUseCase` classes are reused. `ActionLogic` makes it easy to validate your shared `context`s by providing three different validations:
 
