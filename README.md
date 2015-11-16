@@ -369,6 +369,55 @@ Using `context.fail!` does two important things: it immediately stops the execut
 and also sets the status of the `context` as `:failure`. This status is most applicable to the caller or an `ActionCoordinator` that might have a plan specifically for a `:failure`
 status of a resulting `ActionUseCase`.
 
+The folling is a simple example to show how a `context` is failed within a `call` method:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  def call
+    if invalid?
+      context.fail!
+    end
+  end
+
+  def invalid?
+    true
+  end
+end
+
+result = ActionTaskExample.execute
+
+result # => #<ActionLogic::ActionContext status=:failure, message="">
+```
+
+When failing a `context` it is possible to also specify a message:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  def call
+    if invalid?
+      context.fail! "Something was invalid"
+    end
+  end
+
+  def invalid?
+    true
+  end
+end
+
+result = ActionTaskExample.execute
+
+result # => #<ActionLogic::ActionContext status=:failure, message="Something was invalid">
+
+result.message # => "Something was invalid"
+```
+
+From the above example we see how it is possible to `fail!` a `context` while also specifying a clarifying message about the failure condition. Later, we retrieve
+that failure message via the `message` attribute defined on the returned `context`.
+
 ### Halting an `ActionContext`
 Like, failing a context, Using `context.halt!` does two important things: it immediately halts the execution of any proceeding business logic (prevents any additional `ActionTasks`
 from executing) and also sets the status of the `context` as `:halted`. The caller may use that information to define branching logic or an `ActionCoordinator` may use that
