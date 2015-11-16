@@ -478,8 +478,8 @@ end
 ActionTaskExample.execute # ~> [:required_attribute1] (ActionLogic::MissingAttributeError)
 ```
 
-Attribute validations are defined in the same way regardless of the timing of the validation ([before](#before_validations), [after](#after_validations) or
-[around](#around_validations)). Please refer to the relevant sections for examples of their usage.
+Attribute validations are defined in the same way regardless of the timing of the validation ([before](#before-validations), [after](#after-validations) or
+[around](#around-validations)). Please refer to the relevant sections for examples of their usage.
 
 ### Type Validations
 In addition to attribute validations, `ActionLogic` also allows you to validate against the type of the value of the attribute you expect to be defined in an instance
