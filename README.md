@@ -570,9 +570,10 @@ result # => #<ActionLogic::ActionContext status=:success, example_attribute=#<Ex
 ```
 
 In the above example, a custom class `ExampleClass` is defined. In order to type validate against this class, the required format for the name of the class is simply
-the lowercase version of the class as a symbol. `ExampleClass` becomes `:exampleclass`, `UserAttributes` becomes `:userattributes`, and so on.
+the lowercase version of the class as a symbol. `ExampleClass` becomes `:exampleclass`, `UserAttributes` becomes `:userattributes`,
+`ReallyLongClassNameThatBreaks80ColumnsInVimRule` becomes `:reallylongclassnamethatbreaks80columnsinvimrule` and so on.
 
-If a custom type validation is fails, `ActionLogic` provides the same `ActionLogic::AttributeTypeError` with a detailed explanation about what attribute is in violation
+If a custom type validation fails, `ActionLogic` provides the same `ActionLogic::AttributeTypeError` with a detailed explanation about what attribute is in violation
 of the type validation:
 
 ```ruby
