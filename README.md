@@ -417,12 +417,12 @@ class ActionTaskExample
 
   def call
     context.before_raise = true
-    raise
+    raise "Something broke"
     context.after_raise = true
   end
 
   def error(e)
-    context.e = "the error is passed in as an input parameter: #{e}"
+    context.e = "the error is passed in as an input parameter: #{e.class}"
   end
 end
 
@@ -431,7 +431,7 @@ result = ActionTaskExample.execute
 # the status of the context is not mutated
 result.status # => :success
 
-result.e # => "the error is passed in as an input parameter: "
+result.e # => "the error is passed in as an input parameter: RuntimeError"
 
 result.before_raise # => true
 
