@@ -701,7 +701,87 @@ a given attribute on a context not only has the correct type, but also has a val
 
 ### Presence Validations
 
+`ActionLogic` also allows for presence validation for any attribute on an instance of `ActionContext`. Like other validations, presence validations can be specified in before, after or
+around validations.
+
+By default, presence validations simply check to determine if an attribute's value is not `nil` or is not `false`. To define a presence validation, you need only specify `:presence => true`
+for the attribute you wish to validate against:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_before :example_attribute => { :presence => true }
+
+  def call
+  end
+end
+
+result = ActionTaskExample.execute(:example_attribute => 123)
+
+result # => #<ActionLogic::ActionContext example_attribute=123, status=:success>
+```
+
+However, if a presence validation fails, `ActionLogic` will raise an `ActionLogic::PresenceError` with a detailed description about the attribute failing the presence validation
+and why:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_before :example_attribute => { :presence => true }
+
+  def call
+  end
+end
+
+ActionTaskExample.execute(:example_attribute => nil) # ~> ["Attribute: example_attribute is missing value in context but presence validation was specified"] (ActionLogic::PresenceError)
+```
+
 ### Custom Presence Validations
+
+Sometimes when wanting to validate presence of an attribute with an aggregate type (like `Array` or `Hash`), we may want to validate that such a type is not empty. If
+you wish to validate presence for a type that requires inspecting the value of the attribute, `ActionLogic` allows you the ability to define a custom `Proc` to validate
+an attribute's value against.
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_before :example_attribute => { :presence => ->(attribute) { attribute.any? } }
+
+  def call
+  end
+end
+
+result = ActionTaskExample.execute(:example_attribute => ["element1", "element2", "element3"])
+
+result # => #<ActionLogic::ActionContext example_attribute=["element1", "element2", "element3"], status=:success>
+```
+
+In the example above, we define a lambda that accepts as input the value of the attribute on the `context`. In this case, we are interested in verifying that
+`example_attribute` is not an empty `Array` or an empty `Hash`. This passes our before validation because `ActionTaskExample` is invoked with an `example_attribute`
+whose value is an array consisting of three elements.
+
+However, if a custom presence validation fails, `ActionLogic` will raise an `ActionLogic::PresenceError` with a detailed description about the attribute failing
+the custom presence validation:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_before :example_attribute => { :presence => ->(attribute) { attribute.any? } }
+
+  def call
+  end
+end
+
+ActionTaskExample.execute(:example_attribute => []) # ~> ["Attribute: example_attribute is missing value in context but custom presence validation was specified"] (ActionLogic::PresenceError)
+```
+
+In the above example, we have failed to pass the presence validation for `example_attribute` because the value of `example_attribute` is an empty array. When
+the custom presence validation lambda is called, the lambda returns `false` and the `ActionLogic::PresenceError` is thrown, with an error message indicating
+the attribute that failed the presence validation while also indicating that a custom presence validation was specified.
 
 ### Before Validations
 
