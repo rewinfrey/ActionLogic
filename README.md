@@ -785,6 +785,46 @@ the attribute that failed the presence validation while also indicating that a c
 
 ### Before Validations
 
+If you combine Rails ActionController's `before_filter` and ActiveModel's `validates` then you have approximately what `ActionLogic` defines as `validates_before`.
+Before validations can be defined in any of the `ActionLogic` abstractions (`ActionTask`, `ActionUseCase` and `ActionCoordinator`). In each abstraction a `validates_before`
+operation is performed *before* invoking the `call` method.
+
+Before validations allow you to specify a required attribute and optionally its type and / or presence. The following example illustrates how to specify a before
+validation on a single attribute:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_before :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } }
+
+  def call
+  end
+end
+
+result = ActionTaskExample.execute(:example_attribute => [1, 2, 3])
+
+result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], status=:success>
+```
+
+The following example illustrates how to specify a before validation for multiple attributes:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_before :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } },
+                   :example_attribute2 => { :type => :integer }
+
+  def call
+  end
+end
+
+result = ActionTaskExample.execute(:example_attribute => [1, 2, 3], :example_attribute2 => 1)
+
+result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success>
+```
+
 ### After Validations
 
 ### Around Validations
