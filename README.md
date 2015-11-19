@@ -828,7 +828,7 @@ result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], example_at
 ### After Validations
 
 If you combine Rails ActionController's `after_filter` and ActiveModel's `validates` then you have approximately what `ActionLogic` defines as `validates_after`.
-After validations can be defined in any of the `ActionLogic` abstractions (`ActionTask`, `ActionUseCase` and `ActionCoordinator`). In each abstraction a `validates_before`
+After validations can be defined in any of the `ActionLogic` abstractions (`ActionTask`, `ActionUseCase` and `ActionCoordinator`). In each abstraction a `validates_after`
 operation is performed *after* invoking the `call` method.
 
 After validations allow you to specify a required attribute and optionally its type and / or presence. The following example illustrates how to specify an after
@@ -845,7 +845,7 @@ class ActionTaskExample
   end
 end
 
-result = ActionTaskExample.execute()
+result = ActionTaskExample.execute
 
 result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], status=:success>
 ```
@@ -864,67 +864,48 @@ class ActionTaskExample
   end
 end
 
-result = ActionTaskExample.execute(:example_attribute => [1, 2, 3], :example_attribute2 => 1)
+result = ActionTaskExample.execute
 
 result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success>
 ```
+
 ### Around Validations
 
-### Features
+If you combine Rails ActionController's `around_filter` and ActiveModel's `validates` then you have approximately what `ActionLogic` defines as `validates_around`.
+After validations can be defined in any of the `ActionLogic` abstractions (`ActionTask`, `ActionUseCase` and `ActionCoordinator`). In each abstraction a `validates_after`
+operation is performed *before* and *after* invoking the `call` method.
 
-`ActionLogic` provides a number of convenience functionality that supports simple to complex business logic work flows while maintaining a simple and easy to understand API:
-
-* Validations (`context` is verified to have all necessary attributes, have `presence` and are of the correct type)
-* Custom error handling defined as a callback
-* Prematurely halt or fail a workflow
-
-### Validations
-
-Validating that a shared `context` contains the necessary attributes (parameters) becomes increasingly important as your application grows in complexity and `ActionTask` or `ActionUseCase` classes are reused. `ActionLogic` makes it easy to validate your shared `context`s by providing three different validations:
-
-* Attribute is defined on a context
-* Attribute has a value (presence)
-* Attribute has the correct type
-
-Additionally, validations can be invoked in three ways in any execution context (`ActionTask`, `ActionUseCase` or `ActionCoordinator`):
-
-* Before validations are invoked before the execution context is invoked
-* After validations are invoked after the execution context is invoked
-* Aroud validations are invoked before and after the execution context is invoked
-
-Validations are defined and made available for all execution contexts with the same methods and format:
+Around validations allow you to specify a required attribute and optionally its type and / or presence. The following example illustrates how to specify an around
+validation on a single attribute:
 
 ```ruby
-class ExampleActionTask
+class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_before :attribute1 => { :type => :integer, :presence => true },
-                   :attribute2 => { :type => :string, :presence => true }
-
-  validates_after  :attribute3 => { :type => :boolean, :presence => true },
-                   :attribute4 => { :type => :string,  :presence => true }
-
-  validates_around :ids => { :type => :array, :presence => ->(ids) { !ids.empty? } }
+  validates_around :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } }
 
   def call
-    # set attribute3 on the shared context to satisfy the `validates_after` validations
-    context.attribute3 = true
-
-    # set attribute4 on the shared context to satisfy the `validates_after` validations
-    context.attribute4 = "an example string value"
   end
 end
 
-# In order to satisfy ExampleActionTask's `validates_before` validations, we must provide an initial
-# hash of attributes and values that satisfy the `validates_before` validations:
-params = {
-  :attribute1 => 1,
-  :attribute2 => "another example string value"
-}
+result = ActionTaskExample.execute(:example_attribute => [1, 2, 3])
 
-# In order to satisfy ExampleActionTask's `validates_around` validation, we must provide an initial
-# attribute and value that will satisfy the `validates_around` validation:
-params[:ids] = [1, 2, 3, 4]
+result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], status=:success>
+```
+The following example illustrates how to specify an around validation for multiple attributes:
 
-ExampleActionTask.execute(params) # => #<ActionLogic::ActionContext attribute1=1, attribute2="another example string value", ids=[1, 2, 3, 4], status=:success, attribute3=true, attribute4="an example string value">
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_around :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } },
+                   :example_attribute2 => { :type => :integer }
+
+  def call
+  end
+end
+
+result = ActionTaskExample.execute(:example_attribute => [1, 2, 3], :example_attribute2 => 1)
+
+result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success>
 ```
