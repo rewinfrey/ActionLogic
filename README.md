@@ -827,6 +827,47 @@ result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], example_at
 
 ### After Validations
 
+If you combine Rails ActionController's `after_filter` and ActiveModel's `validates` then you have approximately what `ActionLogic` defines as `validates_after`.
+After validations can be defined in any of the `ActionLogic` abstractions (`ActionTask`, `ActionUseCase` and `ActionCoordinator`). In each abstraction a `validates_before`
+operation is performed *after* invoking the `call` method.
+
+After validations allow you to specify a required attribute and optionally its type and / or presence. The following example illustrates how to specify an after
+validation on a single attribute:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_after :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } }
+
+  def call
+    context.example_attribute = [1, 2, 3]
+  end
+end
+
+result = ActionTaskExample.execute()
+
+result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], status=:success>
+```
+The following example illustrates how to specify an after validation for multiple attributes:
+
+```ruby
+class ActionTaskExample
+  include ActionLogic::ActionTask
+
+  validates_after :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } },
+                  :example_attribute2 => { :type => :integer }
+
+  def call
+    context.example_attribute = [1, 2, 3]
+    context.example_attribute2 = 1
+  end
+end
+
+result = ActionTaskExample.execute(:example_attribute => [1, 2, 3], :example_attribute2 => 1)
+
+result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success>
+```
 ### Around Validations
 
 ### Features
