@@ -872,7 +872,7 @@ result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], example_at
 ### Around Validations
 
 If you combine Rails ActionController's `around_filter` and ActiveModel's `validates` then you have approximately what `ActionLogic` defines as `validates_around`.
-After validations can be defined in any of the `ActionLogic` abstractions (`ActionTask`, `ActionUseCase` and `ActionCoordinator`). In each abstraction a `validates_after`
+Around validations can be defined in any of the `ActionLogic` abstractions (`ActionTask`, `ActionUseCase` and `ActionCoordinator`). In each abstraction a `validates_around`
 operation is performed *before* and *after* invoking the `call` method.
 
 Around validations allow you to specify a required attribute and optionally its type and / or presence. The following example illustrates how to specify an around
