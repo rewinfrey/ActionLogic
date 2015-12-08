@@ -483,20 +483,20 @@ to expirement and play with the flexibility provided to you by `ActionContext` i
 ```ruby
 class RailsControllerExample < ApplicationController
   def create
-		case create_use_case.status
-		when :disposition_1 then ActionUseCaseSuccess1.execute(create_use_case)
-		when :disposition_2 then ActionUseCaseSuccess2.execute(create_use_case)
-		when :disposition_9 then ActionUseCaseFailure.execute(create_use_case)
-		else
-		  ActionUseCaseDefault.execute(create_use_case)
-		end
-	end
+    case create_use_case.status
+      when :disposition_1 then ActionUseCaseSuccess1.execute(create_use_case)
+      when :disposition_2 then ActionUseCaseSuccess2.execute(create_use_case)
+      when :disposition_9 then ActionUseCaseFailure.execute(create_use_case)
+      else
+        ActionUseCaseDefault.execute(create_use_case)
+    end
+  end
 
-	private
+  private
 
-	def create_use_case
-	  @create_use_case ||= ActionUseCaseExample.execute(params)
-	end
+  def create_use_case
+    @create_use_case ||= ActionUseCaseExample.execute(params)
+  end
 end
 ```
 
