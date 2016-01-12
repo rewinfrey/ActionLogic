@@ -161,7 +161,7 @@ class ValidateAfterTestCoordinator
     context.integer_test = 1
     context.float_test   = 1.0
     context.string_test  = "string"
-    context.bool_test    = false
+    context.bool_test    = true
     context.hash_test    = {}
     context.array_test   = []
     context.symbol_test  = :symbol

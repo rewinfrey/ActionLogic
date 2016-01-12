@@ -1,14 +1,14 @@
 require 'fixtures/custom_types'
 
 class Constants
-  ALL_VALIDATIONS = { :integer_test => { :type => :integer, :presence => true },
-                      :float_test   => { :type => :float, :presence => true },
-                      :string_test  => { :type => :string, :presence => true },
-                      :bool_test    => { :type => :boolean, :presence => true },
-                      :hash_test    => { :type => :hash, :presence => true },
-                      :array_test   => { :type => :array, :presence => true },
-                      :symbol_test  => { :type => :symbol, :presence => true },
-                      :nil_test     => { :type => :nil } }
+  ALL_VALIDATIONS = { :integer_test => { :type => Fixnum, :presence => true },
+                      :float_test   => { :type => Float, :presence => true },
+                      :string_test  => { :type => String, :presence => true },
+                      :bool_test    => { :type => TrueClass, :presence => true },
+                      :hash_test    => { :type => Hash, :presence => true },
+                      :array_test   => { :type => Array, :presence => true },
+                      :symbol_test  => { :type => Symbol, :presence => true },
+                      :nil_test     => { :type => NilClass } }
 
   INVALID_ATTRIBUTES = { :integer_test => nil,
                          :float_test   => nil,
@@ -28,11 +28,11 @@ class Constants
                        :symbol_test => :symbol,
                        :nil_test => nil }
 
-  CUSTOM_TYPE_VALIDATION1 = { :custom_type => { :type => :customtype1, :presence => true } }
+  CUSTOM_TYPE_VALIDATION1 = { :custom_type => { :type => CustomType1, :presence => true } }
 
   CUSTOM_TYPE_ATTRIBUTES1 = { :custom_type => CustomType1.new }
 
-  CUSTOM_TYPE_VALIDATION2 = { :custom_type => { :type => :customtype2, :presence => true } }
+  CUSTOM_TYPE_VALIDATION2 = { :custom_type => { :type => CustomType2, :presence => true } }
 
   CUSTOM_TYPE_ATTRIBUTES2 = { :custom_type => CustomType2.new }
 
