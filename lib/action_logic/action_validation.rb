@@ -96,16 +96,5 @@ module ActionLogic
 
       raise ActionLogic::PresenceError.new(presence_errors) if presence_errors.any?
     end
-
-    def type_to_sym(value)
-      case value.class.name.downcase.to_sym
-      when :fixnum     then :integer
-      when :falseclass then :boolean
-      when :trueclass  then :boolean
-      when :nilclass   then :nil
-      else
-        value.class.name.downcase.to_sym
-      end
-    end
   end
 end
