@@ -59,7 +59,7 @@ module ActionLogic
       expected_attributes = validations.keys || []
       missing_attributes  = expected_attributes - existing_attributes
 
-      raise ActionLogic::MissingAttributeError.new(missing_attributes) if missing_attributes.any?
+      raise ActionLogic::MissingAttributeError.new(error_message_format(missing_attributes.join(", ") + " attributes are missing")) if missing_attributes.any?
     end
 
     def validate_types!(validations)
@@ -74,7 +74,7 @@ module ActionLogic
         collection
       end
 
-      raise ActionLogic::AttributeTypeError.new(type_errors) if type_errors.any?
+      raise ActionLogic::AttributeTypeError.new(error_message_format(type_errors.join(", "))) if type_errors.any?
     end
 
     def validate_presence!(validations)
@@ -88,13 +88,17 @@ module ActionLogic
         elsif expected_validation[:presence].class == Proc
           collection << "Attribute: #{expected_attribute} is missing value in context but custom presence validation was specified" unless expected_validation[:presence].call(context[expected_attribute])
         else
-          raise ActionLogic::UnrecognizablePresenceValidatorError.new("Presence validator: #{expected_validation[:presence]} is not a supported format")
+          raise ActionLogic::UnrecognizablePresenceValidatorError.new(error_message_format("Presence validator: #{expected_validation[:presence]} is not a supported format"))
         end
 
         collection
       end || []
 
       raise ActionLogic::PresenceError.new(presence_errors) if presence_errors.any?
+    end
+
+    def error_message_format(error_string)
+      "context: #{self.class} message: #{error_string}"
     end
   end
 end
