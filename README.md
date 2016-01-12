@@ -589,7 +589,7 @@ class ActionTaskExample
   end
 end
 
-ActionTaskExample.execute # ~> [:required_attribute1] (ActionLogic::MissingAttributeError)
+ActionTaskExample.execute # ~> context: ActionTaskExample message: [:required_attribute1] (ActionLogic::MissingAttributeError)
 ```
 
 Attribute validations are defined in the same way regardless of the timing of the validation ([before](#before-validations), [after](#after-validations) or
@@ -657,7 +657,7 @@ class ActionTaskExample
   end
 end
 
-ActionTaskExample.execute # ~> ["Attribute: integer_test with value: 1.0 was expected to be of type Fixnum but is Float"] (ActionLogic::AttributeTypeError)
+ActionTaskExample.execute # ~> context: ActionTaskExample message: Attribute: integer_test with value: 1.0 was expected to be of type Fixnum but is Float (ActionLogic::AttributeTypeError)
 ```
 
 In addition to the above default types it is possible to also validate against user defined types.
@@ -709,7 +709,7 @@ class ActionTaskExample
   end
 end
 
-ActionTaskExample.execute # ~> ["Attribute: example_attribute with value: #<OtherClass:0x007fb5ca04edb8> was expected to be of type ExampleClass but is OtherClass"] (ActionLogic::AttributeTypeError)
+ActionTaskExample.execute # ~> context: ActionTaskExample message: Attribute: example_attribute with value: #<OtherClass:0x007fb5ca04edb8> was expected to be of type ExampleClass but is OtherClass (ActionLogic::AttributeTypeError)
 ```
 
 Attribute and type validations are very helpful, but in some situations this is not enough. Additionally, `ActionLogic` provides presence validation so you can also verify that
@@ -751,7 +751,7 @@ class ActionTaskExample
   end
 end
 
-ActionTaskExample.execute(:example_attribute => nil) # ~> ["Attribute: example_attribute is missing value in context but presence validation was specified"] (ActionLogic::PresenceError)
+ActionTaskExample.execute(:example_attribute => nil) # ~> context: ActionTaskExample message: Attribute: example_attribute is missing value in context but presence validation was specified (ActionLogic::PresenceError)
 ```
 
 ### Custom Presence Validations
@@ -792,7 +792,7 @@ class ActionTaskExample
   end
 end
 
-ActionTaskExample.execute(:example_attribute => []) # ~> ["Attribute: example_attribute is missing value in context but custom presence validation was specified"] (ActionLogic::PresenceError)
+ActionTaskExample.execute(:example_attribute => []) # ~> context: ActionTaskExample message: Attribute: example_attribute is missing value in context but custom presence validation was specified (ActionLogic::PresenceError)
 ```
 
 In the above example, we have failed to pass the presence validation for `example_attribute` because the value of `example_attribute` is an empty array. When
