@@ -162,9 +162,9 @@ To implement an `ActionTask` class you must define a `call` method. You can also
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_before :expected_attribute1 => { :type => :string },
-                   :expected_attribute2 => { :type => :integer, :presence => true }
-  validates_after  :example_attribute1 => { :type => :string, :presence => ->(example_attribute1) { !example_attribute1.empty? } }
+  validates_before :expected_attribute1 => { :type => String },
+                   :expected_attribute2 => { :type => Fixnum, :presence => true }
+  validates_after  :example_attribute1 => { :type => String, :presence => ->(example_attribute1) { !example_attribute1.empty? } }
 
   def call
     # adds `example_attribute1` to the shared `context` with the value "Example value"
@@ -179,30 +179,37 @@ result = ActionTaskExample.execute(:expected_attribute1 => "example", :expected_
 result # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_attribute1="New value from context attributes: example 123">
 ```
 
-The `ActionTaskExample` is invoked using the static method `execute` which takes an optional hash of attributes that is converted into an `ActionContext`. Assuming the before validations are satisfied, the `call` method is invoked. In the body of the `call` method the `ActionTask` can access the shared `ActionContext` instance via a `context` object. This shared `context` object allows for getting and setting attributes as needed. When the `call` method returns, the `context` is validated against any defined after validations, and the `context` is then returned to the caller.
+The `ActionTaskExample` is invoked using the static method `execute` which takes an optional hash of attributes that is converted into an `ActionContext`.
+Assuming the before validations are satisfied, the `call` method is invoked. In the body of the `call` method the `ActionTask` can access the shared `ActionContext`
+instance via a `context` object. This shared `context` object allows for getting and setting attributes as needed. When the `call` method returns, the `context`
+is validated against any defined after validations, and the `context` is then returned to the caller.
 
 The diagram below is a visual representation of how an `ActionTask` is evaluted when its `execute` method is invoked from a caller:
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_task_diagram.png" />
 
-Although this example is for the `ActionTask` abstraction, `ActionUseCase` and `ActionCoordinator` follow the same pattern. The difference is that `ActionUseCase` is designed to organize multiple `ActionTasks`, and `ActionCoordinator` is designed to organize many `ActionUseCases`.
+Although this example is for the `ActionTask` abstraction, `ActionUseCase` and `ActionCoordinator` follow the same pattern. The difference is that `ActionUseCase`
+is designed to organize multiple `ActionTasks`, and `ActionCoordinator` is designed to organize many `ActionUseCases`.
 
 ### ActionUseCase
 
-As business logic grows in complexity the number of steps or tasks required to fulfill that business logic tends to increase. Managing this complexity is a problem every team must face. Abstractions can help teams of varying experience levels work together and promote code that remains modular and simple to understand and extend. `ActionUseCase` represents a layer of abstraction that organizes multiple `ActionTasks` and executes each `ActionTask` in the order they are defined. Each task receives the same shared `context` so tasks can be composed together.
+As business logic grows in complexity the number of steps or tasks required to fulfill that business logic tends to increase. Managing this complexity is a problem every team must face.
+Abstractions can help teams of varying experience levels work together and promote code that remains modular and simple to understand and extend. `ActionUseCase` represents a layer of
+abstraction that organizes multiple `ActionTasks` and executes each `ActionTask` in the order they are defined. Each task receives the same shared `context` so tasks can be composed together.
 
-To implement an `ActionUseCase` class you must define a `call` method and a `tasks` method. You also can specify any before, after or around validations or an error handler. The following is an example showcasing how an `ActionUseCase` class organizes the execution of multiple `ActionTasks` and defines before and after validations on the shared `context`:
+To implement an `ActionUseCase` class you must define a `call` method and a `tasks` method. You also can specify any before, after or around validations or an error handler.
+The following is an example showcasing how an `ActionUseCase` class organizes the execution of multiple `ActionTasks` and defines before and after validations on the shared `context`:
 
 ```ruby
 class ActionUseCaseExample
   include ActionLogic::ActionUseCase
 
-  validates_before :expected_attribute1 => { :type => :string },
-                   :expected_attribute2 => { :type => :integer, :presence => true }
-  validates_after  :example_task1    => { :type => :boolean, :presence => true },
-                   :example_task2    => { :type => :boolean, :presence => true },
-                   :example_task3    => { :type => :boolean, :presence => true },
-                   :example_usecase1 => { :type => :boolean, :presence => true }
+  validates_before :expected_attribute1 => { :type => String },
+                   :expected_attribute2 => { :type => Fixnum, :presence => true }
+  validates_after  :example_task1    => { :type => TrueClass, :presence => true },
+                   :example_task2    => { :type => TrueClass, :presence => true },
+                   :example_task3    => { :type => TrueClass, :presence => true },
+                   :example_usecase1 => { :type => TrueClass, :presence => true }
 
   # The `call` method is invoked prior to invoking any of the ActionTasks defined by the `tasks` method.
   # The purpose of the `call` method allows us to prepare the shared `context` prior to invoking the ActionTasks.
@@ -220,7 +227,7 @@ end
 
 class ActionTaskExample1
   include ActionLogic::ActionTask
-  validates_after :example_task1 => { :type => :boolean, :presence => true }
+  validates_after :example_task1 => { :type => TrueClass, :presence => true }
 
   def call
     context # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true>
@@ -230,7 +237,7 @@ end
 
 class ActionTaskExample2
   include ActionLogic::ActionTask
-  validates_after :example_task2 => { :type => :boolean, :presence => true }
+  validates_after :example_task2 => { :type => TrueClass, :presence => true }
 
   def call
     context # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true>
@@ -240,7 +247,7 @@ end
 
 class ActionTaskExample3
   include ActionLogic::ActionTask
-  validates_after :example_task3 => { :type => :boolean, :presence => true }
+  validates_after :example_task3 => { :type => TrueClass, :presence => true }
 
   def call
     context # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true, example_task2=true>
@@ -254,17 +261,24 @@ result = ActionUseCaseExample.execute(:expected_attribute1 => "example", :expect
 result # => #<ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true, example_task2=true, example_task3=true>
 ```
 
-By following the value of the shared `context` from the `ActionUseCaseExample` to each of the `ActionTask` classes, it is possible to see how the shared `context` is mutated to accomodate the various attributes and their values each execution context adds to the `context`. It also reveals the order in which the `ActionTasks` are evaluated, and indicates that the `call` method of the `ActionUseCaseExample` is invoked prior to any of the `ActionTasks` defined in the `tasks` method.
+By following the value of the shared `context` from the `ActionUseCaseExample` to each of the `ActionTask` classes, it is possible to see how the shared `context`
+is mutated to accomodate the various attributes and their values each execution context adds to the `context`. It also reveals the order in which the `ActionTasks`
+are evaluated, and indicates that the `call` method of the `ActionUseCaseExample` is invoked prior to any of the `ActionTasks` defined in the `tasks` method.
 
-To help visualize the flow of execution when an `ActionUseCase` is invoked, this diagram aims to illustrate the relationship between `ActionUseCase` and `ActionTasks` and the order in which operations are performed:
+To help visualize the flow of execution when an `ActionUseCase` is invoked, this diagram aims to illustrate the relationship between `ActionUseCase` and `ActionTasks`
+and the order in which operations are performed:
 
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_use_case_diagram.png" />
 
 ### ActionCoordinator
 
-Sometimes the behavior we wish our Ruby or Rails application to provide requires us to coordinate work between various domains of our application's business logic. The `ActionCoordinator` abstraction is intended to help coordinate multiple `ActionUseCases` by allowing you to define a plan of which `ActionUseCases` to invoke depending on the outcome of each `ActionUseCase` execution. The `ActionCoordinator` abstraction is the highest level of abstraction in `ActionLogic`.
+Sometimes the behavior we wish our Ruby or Rails application to provide requires us to coordinate work between various domains of our application's business logic.
+The `ActionCoordinator` abstraction is intended to help coordinate multiple `ActionUseCases` by allowing you to define a plan of which `ActionUseCases` to invoke
+depending on the outcome of each `ActionUseCase` execution. The `ActionCoordinator` abstraction is the highest level of abstraction in `ActionLogic`.
 
-To implement an `ActionCoordinator` class, you must define a `call` method in addition to a `plan` method. The purpose of the `plan` method is to define a state transition map that links together the various `ActionUseCase` classes the `ActionCoordinator` is organizing, as well as allowing you to define error or halt scenarios based on the result of each `ActionUseCase`. The following code example demonstrates a simple `ActionCoordinator`:
+To implement an `ActionCoordinator` class, you must define a `call` method in addition to a `plan` method. The purpose of the `plan` method is to define a state
+transition map that links together the various `ActionUseCase` classes the `ActionCoordinator` is organizing, as well as allowing you to define error or halt
+scenarios based on the result of each `ActionUseCase`. The following code example demonstrates a simple `ActionCoordinator`:
 
 ```ruby
 class ActionCoordinatorExample
@@ -289,7 +303,7 @@ end
 class ActionUseCaseExample1
   include ActionLogic::ActionUseCase
 
-  validates_before :required_attribute1 => { :type => :string }
+  validates_before :required_attribute1 => { :type => String }
 
   def call
     context # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2">
@@ -305,7 +319,7 @@ end
 class ActionUseCaseExample2
   include ActionLogic::ActionUseCase
 
-  validates_before :required_attribute2 => { :type => :string }
+  validates_before :required_attribute2 => { :type => String }
 
   def call
     context # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true>
@@ -334,7 +348,7 @@ end
 
 class ActionTaskExample1
   include ActionLogic::ActionTask
-  validates_after :example_task1 => { :type => :boolean, :presence => true }
+  validates_after :example_task1 => { :type => TrueClass, :presence => true }
 
   def call
     context # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true>
@@ -344,7 +358,7 @@ end
 
 class ActionTaskExample2
   include ActionLogic::ActionTask
-  validates_after :example_task2 => { :type => :boolean, :presence => true }
+  validates_after :example_task2 => { :type => TrueClass, :presence => true }
 
   def call
     context # => #<ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true, example_usecase2=true>
@@ -360,9 +374,9 @@ result # => #<ActionLogic::ActionContext status=:success, required_attribute1="r
 <img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_coordinator_diagram.png" />
 
 ### Succeeding an `ActionContext`
-By default, the value of the `status` attribute of instances of `ActionContext` is `:success`. Normally this is useful information for the caller of an `ActionTask`, `ActionUseCase` or `ActionCoordinator`
-because it informs the caller that the various execution context(s) were successful. In other words, a `:success` status indicates that none of the execution contexts had a failure
-or halted execution.
+By default, the value of the `status` attribute of instances of `ActionContext` is `:success`. Normally this is useful information for the caller of an `ActionTask`,
+`ActionUseCase` or `ActionCoordinator` because it informs the caller that the various execution context(s) were successful. In other words, a `:success` status
+indicates that none of the execution contexts had a failure or halted execution.
 
 ### Failing an `ActionContext`
 Using `context.fail!` does two important things: it immediately stops the execution of any proceeding business logic (prevents any additional `ActionTasks` from executing)
@@ -589,20 +603,22 @@ of `ActionContext`. To understand the default types `ActionLogic` validates agai
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_after :integer_test => { :type => :integer },
-                  :float_test   => { :type => :float },
-                  :string_test  => { :type => :string },
-                  :bool_test    => { :type => :boolean },
-                  :hash_test    => { :type => :hash },
-                  :array_test   => { :type => :array },
-                  :symbol_test  => { :type => :symbol },
-                  :nil_test     => { :type => :nil }
+  validates_after :integer_test => { :type => Fixnum },
+                  :float_test   => { :type => Float },
+                  :string_test  => { :type => String },
+                  :truthy_test  => { :type => TrueClass },
+                  :falsey_test  => { :type => FalseClass },
+                  :hash_test    => { :type => Hash },
+                  :array_test   => { :type => Array },
+                  :symbol_test  => { :type => Symbol },
+                  :nil_test     => { :type => NilClass }
 
   def call
     context.integer_test = 123
     context.float_test   = 1.0
     context.string_test  = "test"
-    context.bool_test    = true
+    context.truthy_test  = true
+    context.falsey_test  = false
     context.hash_test    = {}
     context.array_test   = []
     context.symbol_test  = :symbol
@@ -616,7 +632,8 @@ result # => #<ActionLogic::ActionContext status=:success,
             #                            integer_test=123,
             #                            float_test=1.0,
             #                            string_test="test",
-            #                            bool_test=true,
+            #                            truthy_test=true,
+            #                            falsey_test=false,
             #                            hash_test={},
             #                            array_test=[],
             #                            symbol_test=:symbol,
@@ -624,7 +641,7 @@ result # => #<ActionLogic::ActionContext status=:success,
 ```
 
 It's important to point out that Ruby's `true` and `false` are not `Boolean` but `TrueClass` and `FalseClass` respectively. Additionally, `nil`'s type is `NilClass` in Ruby.
-To simplify the way these validations work for `true` or `false`, type validations expect the symbol `:boolean` as the `:type`. `nil` is validated simply with the `:nil` `:type`.
+Also potentially surprising to some is that Ruby's integer type is of class `Fixnum`, but floats are of class `Float`.
 
 As we saw with attribute validations, if an attribute's value does not conform to the type expected, `ActionLogic` will raise an `ActionLogic::AttributeTypeError`
 with a detailed description about which attribute's value failed the validation:
@@ -633,14 +650,14 @@ with a detailed description about which attribute's value failed the validation:
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_after :integer_test => { :type => :integer }
+  validates_after :integer_test => { :type => Fixnum }
 
   def call
     context.integer_test = 1.0
   end
 end
 
-ActionTaskExample.execute # ~> ["Attribute: integer_test with value: 1.0 was expected to be of type integer but is float"] (ActionLogic::AttributeTypeError)
+ActionTaskExample.execute # ~> ["Attribute: integer_test with value: 1.0 was expected to be of type Fixnum but is Float"] (ActionLogic::AttributeTypeError)
 ```
 
 In addition to the above default types it is possible to also validate against user defined types.
@@ -657,7 +674,7 @@ end
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_after :example_attribute => { :type => :exampleclass }
+  validates_after :example_attribute => { :type => ExampleClass }
 
   def call
     context.example_attribute = ExampleClass.new
@@ -670,8 +687,7 @@ result # => #<ActionLogic::ActionContext status=:success, example_attribute=#<Ex
 ```
 
 In the above example, a custom class `ExampleClass` is defined. In order to type validate against this class, the required format for the name of the class is simply
-the lowercase version of the class as a symbol. `ExampleClass` becomes `:exampleclass`, `UserAttributes` becomes `:userattributes`,
-`ReallyLongClassNameThatBreaks80ColumnsInVimRule` becomes `:reallylongclassnamethatbreaks80columnsinvimrule` and so on.
+the class constant `ExampleClass`.
 
 If a custom type validation fails, `ActionLogic` provides the same `ActionLogic::AttributeTypeError` with a detailed explanation about what attribute is in violation
 of the type validation:
@@ -686,14 +702,14 @@ end
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_after :example_attribute => { :type => :exampleclass }
+  validates_after :example_attribute => { :type => ExampleClass }
 
   def call
     context.example_attribute = OtherClass.new
   end
 end
 
-ActionTaskExample.execute # ~> ["Attribute: example_attribute with value: #<OtherClass:0x007fb5ca04edb8> was expected to be of type exampleclass but is otherclass"] (ActionLogic::AttributeTypeError)
+ActionTaskExample.execute # ~> ["Attribute: example_attribute with value: #<OtherClass:0x007fb5ca04edb8> was expected to be of type ExampleClass but is OtherClass"] (ActionLogic::AttributeTypeError)
 ```
 
 Attribute and type validations are very helpful, but in some situations this is not enough. Additionally, `ActionLogic` provides presence validation so you can also verify that
@@ -796,7 +812,7 @@ validation on a single attribute:
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_before :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } }
+  validates_before :example_attribute => { :type => Array, :presence => ->(attribute) { attribute.any? } }
 
   def call
   end
@@ -813,8 +829,8 @@ The following example illustrates how to specify a before validation for multipl
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_before :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } },
-                   :example_attribute2 => { :type => :integer }
+  validates_before :example_attribute => { :type => Array, :presence => ->(attribute) { attribute.any? } },
+                   :example_attribute2 => { :type => Fixnum }
 
   def call
   end
@@ -838,7 +854,7 @@ validation on a single attribute:
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_after :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } }
+  validates_after :example_attribute => { :type => Array, :presence => ->(attribute) { attribute.any? } }
 
   def call
     context.example_attribute = [1, 2, 3]
@@ -855,8 +871,8 @@ The following example illustrates how to specify an after validation for multipl
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_after :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } },
-                  :example_attribute2 => { :type => :integer }
+  validates_after :example_attribute => { :type => Array, :presence => ->(attribute) { attribute.any? } },
+                  :example_attribute2 => { :type => Fixnum }
 
   def call
     context.example_attribute = [1, 2, 3]
@@ -882,7 +898,7 @@ validation on a single attribute:
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_around :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } }
+  validates_around :example_attribute => { :type => Array, :presence => ->(attribute) { attribute.any? } }
 
   def call
   end
@@ -898,8 +914,8 @@ The following example illustrates how to specify an around validation for multip
 class ActionTaskExample
   include ActionLogic::ActionTask
 
-  validates_around :example_attribute => { :type => :array, :presence => ->(attribute) { attribute.any? } },
-                   :example_attribute2 => { :type => :integer }
+  validates_around :example_attribute => { :type => Array, :presence => ->(attribute) { attribute.any? } },
+                   :example_attribute2 => { :type => Fixnum }
 
   def call
   end
