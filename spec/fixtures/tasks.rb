@@ -22,7 +22,7 @@ end
 class ValidateAroundCustomTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_around :custom_type => { :type => :customtype1, :presence => true }
+  validates_around :custom_type => { :type => CustomType1, :presence => true }
 
   def call
   end
@@ -71,7 +71,7 @@ end
 class ValidateBeforeCustomTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_before :custom_type => { :type => :customtype1, :presence => true }
+  validates_before :custom_type => { :type => CustomType1, :presence => true }
 
   def call
   end
@@ -117,7 +117,7 @@ class ValidateAfterTestTask
     context.integer_test = 1
     context.float_test   = 1.0
     context.string_test  = "string"
-    context.bool_test    = false
+    context.bool_test    = true
     context.hash_test    = {}
     context.array_test   = []
     context.symbol_test  = :symbol
@@ -154,7 +154,7 @@ end
 class ValidateAfterCustomTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_after :custom_type => { :type => :customtype1, :presence => true }
+  validates_after :custom_type => { :type => CustomType1, :presence => true }
 
   def call
     context.custom_type = CustomType1.new
@@ -164,7 +164,7 @@ end
 class ValidateAfterInvalidCustomTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_after :custom_type => { :type => :customtype2, :presence => true }
+  validates_after :custom_type => { :type => CustomType2, :presence => true }
 
   def call
     context.custom_type = CustomType1.new

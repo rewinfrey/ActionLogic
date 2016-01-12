@@ -68,8 +68,8 @@ module ActionLogic
       type_errors = validations.reduce([]) do |collection, (expected_attribute, expected_validation)|
         next unless expected_validation[:type]
 
-        if type_to_sym(context.to_h[expected_attribute]) != expected_validation[:type]
-          collection << "Attribute: #{expected_attribute} with value: #{context.to_h[expected_attribute]} was expected to be of type #{expected_validation[:type]} but is #{type_to_sym(context.to_h[expected_attribute])}"
+        if context.to_h[expected_attribute].class != expected_validation[:type]
+          collection << "Attribute: #{expected_attribute} with value: #{context.to_h[expected_attribute]} was expected to be of type #{expected_validation[:type]} but is #{context.to_h[expected_attribute].class}"
         end
         collection
       end

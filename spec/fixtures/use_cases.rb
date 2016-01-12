@@ -65,7 +65,7 @@ end
 class ValidateAroundCustomTypeTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_around :custom_type => { :type => :customtype1, :presence => true }
+  validates_around :custom_type => { :type => CustomType1, :presence => true }
 
   def call
   end
@@ -197,7 +197,7 @@ class ValidateAfterTestUseCase
     context.integer_test = 1
     context.float_test   = 1.0
     context.string_test  = "string"
-    context.bool_test    = false
+    context.bool_test    = true
     context.hash_test    = {}
     context.array_test   = []
     context.symbol_test  = :symbol
