@@ -17,6 +17,12 @@ module ActionLogic
 
     module ClassMethods
       def around(params, &block)
+        with_benchmark(self) do
+          execute!(params, &block)
+        end
+      end
+
+      def execute!(params, &block)
         execution_context = self.new(params)
 
         return execution_context.context if execution_context.break?
