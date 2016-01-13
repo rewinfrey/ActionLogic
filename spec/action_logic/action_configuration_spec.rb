@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'stringio'
 require 'action_logic'
 
 module ActionLogic
@@ -30,7 +29,7 @@ module ActionLogic
       end
 
       it "returns the log file when the benchmark log configuration option is set" do
-        temp_file = StringIO.new
+        temp_file = Object.new
 
         described_class.configure do |config|
           config.benchmark_log = temp_file
