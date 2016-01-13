@@ -1,4 +1,5 @@
 require 'action_logic/version'
+require 'action_logic/action_configuration'
 require 'action_logic/action_context'
 require 'action_logic/action_coordinator'
 require 'action_logic/action_core'
