@@ -1,6 +1,7 @@
 require 'action_logic'
 require 'fixtures/constants'
 
+# :nocov:
 class TestCoordinator1
   include ActionLogic::ActionCoordinator
 
@@ -562,3 +563,4 @@ class FailureTestTask3
     context.fail!
   end
 end
+# :nocov:

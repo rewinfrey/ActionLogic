@@ -1,7 +1,7 @@
 require 'action_logic'
 require 'fixtures/custom_types'
 require 'fixtures/constants'
-
+# :nocov:
 class SimpleTestTask
   include ActionLogic::ActionTask
 
@@ -284,3 +284,4 @@ class HaltTestTask
     context.halt!(Constants::HALT_MESSAGE)
   end
 end
+# :nocov:
