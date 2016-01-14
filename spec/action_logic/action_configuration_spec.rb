@@ -5,7 +5,7 @@ module ActionLogic
   describe ActionConfiguration do
     subject { described_class }
 
-    before do
+    after do
       described_class.reset!
     end
 
