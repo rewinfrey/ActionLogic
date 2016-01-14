@@ -1,17 +1,11 @@
-require 'action_logic/action_core'
-require 'action_logic/action_validation'
-require 'action_logic/action_benchmark'
+require 'action_logic/action_includes'
 
 module ActionLogic
   module ActionTask
-    include ActionLogic::ActionValidation
-    include ActionLogic::ActionCore
 
     def self.included(klass)
+      klass.extend ActionLogic::ActionIncludes
       klass.extend ClassMethods
-      klass.extend ActionLogic::ActionCore::ClassMethods
-      klass.extend ActionLogic::ActionValidation::ClassMethods
-      klass.extend ActionLogic::ActionBenchmark::ClassMethods
     end
 
     module ClassMethods
