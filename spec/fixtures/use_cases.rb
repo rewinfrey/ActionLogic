@@ -2,6 +2,7 @@ require 'action_logic'
 require 'fixtures/tasks'
 require 'fixtures/constants'
 
+# :nocov:
 class SimpleTestUseCase
   include ActionLogic::ActionUseCase
 
@@ -416,3 +417,4 @@ class UseCaseHaltTestTask
     context.halt!(Constants::HALT_MESSAGE)
   end
 end
+# :nocov:
