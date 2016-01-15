@@ -5,6 +5,10 @@ require 'fixtures/custom_types'
 
 module ActionLogic
   describe ActionCoordinator do
+    it "knows its type" do
+      expect(TestCoordinator1.__private__type).to eq(:coordinator)
+    end
+
     context "no failures and no halts" do
       it "evaluates all use cases defined by the state transition plan" do
         result = TestCoordinator1.execute()
