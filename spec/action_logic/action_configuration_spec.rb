@@ -5,6 +5,10 @@ module ActionLogic
   describe ActionConfiguration do
     subject { described_class }
 
+    before do
+      described_class.reset!
+    end
+
     after do
       described_class.reset!
     end
@@ -36,6 +40,22 @@ module ActionLogic
         end
 
         expect(described_class.benchmark_log).to eq(temp_file)
+      end
+    end
+
+    context "benchmark_formatter" do
+      it "uses default formatter if a custom formatter is not provided" do
+        expect(described_class.benchmark_formatter).to be_a(ActionLogic::ActionBenchmark::DefaultFormatter)
+      end
+
+      it "uses a custom formatter if one is provided" do
+        class CustomFormatter; end
+
+        described_class.configure do |config|
+          config.benchmark_formatter = CustomFormatter
+        end
+
+        expect(described_class.benchmark_formatter).to be_a(CustomFormatter)
       end
     end
   end

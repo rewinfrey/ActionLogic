@@ -18,8 +18,23 @@ module ActionLogic
       configuration_options.benchmark_log || $stdout
     end
 
+    def self.benchmark_formatter
+      custom_benchmark_formatter || default_formatter
+    end
+
     def self.reset!
       @configuration_options = OpenStruct.new
+      @custom_benchmark_formatter = nil
+      @default_formatter = nil
+    end
+
+    def self.custom_benchmark_formatter
+      @custom_benchmark_formatter ||= configuration_options.benchmark_formatter &&
+        configuration_options.benchmark_formatter.new
+    end
+
+    def self.default_formatter
+      @default_formatter ||= ::ActionLogic::ActionBenchmark::DefaultFormatter.new
     end
   end
 end
