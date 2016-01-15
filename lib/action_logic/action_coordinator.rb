@@ -33,6 +33,10 @@ module ActionLogic
           execution_context.context
         end
       end
+
+      def __private__type
+        :coordinator
+      end
     end
   end
 end
