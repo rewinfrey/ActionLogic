@@ -1,19 +1,38 @@
+require 'benchmark'
+
 module ActionLogic
   module ActionBenchmark
 
     module ClassMethods
-      def with_benchmark(class_context, &block)
-        if ActionConfiguration.benchmark?
-          context = nil
-          benchmark_result = Benchmark.measure { context = block.call }
-          ActionConfiguration.benchmark_log.printf("%60s: %15s %15s %15s %15s\n", "Context", "User Time", "System Time", "Total Time", "Real Time")
-          ActionConfiguration.benchmark_log.printf("%60s: %15f %15f %15f %15f\n\n", class_context, benchmark_result.utime, benchmark_result.stime, benchmark_result.total, benchmark_result.real)
+      def with_benchmark(execution_context, &block)
+        if benchmark?
+          benchmark_result, context = benchmark!(&block)
+          log!(benchmark_result, execution_context)
           context
         else
           block.call
         end
       end
-    end
 
+      private
+
+      def benchmark?
+        ActionConfiguration.benchmark?
+      end
+
+      def benchmark!(&block)
+        context = nil
+        benchmark_result  = Benchmark.measure { context = block.call }
+        [benchmark_result, context]
+      end
+
+      def log!(benchmark_result, execution_context)
+        benchmark_formatter.send(execution_context.__private__type, benchmark_result, execution_context.name)
+      end
+
+      def benchmark_formatter
+        ActionConfiguration.benchmark_formatter
+      end
+    end
   end
 end
