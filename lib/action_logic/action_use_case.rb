@@ -21,6 +21,10 @@ module ActionLogic
           end
         end
       end
+
+      def __private__type
+        :use_case
+      end
     end
   end
 end
