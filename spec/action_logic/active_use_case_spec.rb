@@ -5,6 +5,9 @@ require 'fixtures/custom_types'
 
 module ActionLogic
   describe ActionUseCase do
+    it "knows its type" do
+      expect(SimpleTestUseCase.__private__type).to eq(:use_case)
+    end
 
     it "returns an instance of ActionContext" do
       result = SimpleTestUseCase.execute()
