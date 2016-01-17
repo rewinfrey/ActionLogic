@@ -23,8 +23,8 @@ module ActionLogic
     custom_benchmark_formatter || default_formatter
   end
 
-  def self.benchmark_block
-    configuration_options.benchmark_block || ActionBenchmark::DefaultBenchmarkBlock.new
+  def self.benchmark_handler
+    configuration_options.benchmark_handler || ActionBenchmark::DefaultBenchmarkHandler.new
   end
 
   def self.reset!

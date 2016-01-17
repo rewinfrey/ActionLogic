@@ -57,19 +57,19 @@ describe ActionLogic do
     end
   end
 
-  context "benchmark_block" do
-    it "uses a default benchmark block if a custom benchmark block is not provided" do
-      expect(described_class.benchmark_block).to be_a(ActionLogic::ActionBenchmark::DefaultBenchmarkBlock)
+  context "benchmark_handler" do
+    it "uses a default benchmark handler if a custom benchmark handler is not provided" do
+      expect(described_class.benchmark_handler).to be_a(ActionLogic::ActionBenchmark::DefaultBenchmarkHandler)
     end
 
-    it "uses a custom benchmark block if one is provided" do
-      custom_benchmark_block = -> { yield }
+    it "uses a custom benchmark handler if one is provided" do
+      custom_benchmark_handler = -> { yield }
 
       described_class.configure do |config|
-        config.benchmark_block = custom_benchmark_block
+        config.benchmark_handler = custom_benchmark_handler
       end
 
-      expect(described_class.benchmark_block).to eq(custom_benchmark_block)
+      expect(described_class.benchmark_handler).to eq(custom_benchmark_handler)
     end
   end
 end
