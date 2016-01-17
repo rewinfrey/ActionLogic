@@ -15,7 +15,7 @@ module ActionLogic
       end
 
       def log!(benchmark_result, execution_context)
-        ActionLogic.benchmark_formatter.send(execution_context.__private__type,
+        ActionLogic.benchmark_formatter.send("log_#{execution_context.__private__type}".to_sym,
                                              benchmark_result,
                                              execution_context.name)
       end

@@ -5,7 +5,7 @@ require 'fixtures/tasks'
 module ActionLogic
   describe ActionTask do
     it "knows its type" do
-      expect(SimpleTestTask.__private__type).to eq(:task)
+      expect(SimpleTestTask.__private__type).to eq("task")
     end
 
     it "returns an instance of ActionContext" do

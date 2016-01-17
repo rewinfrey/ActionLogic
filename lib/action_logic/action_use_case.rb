@@ -23,7 +23,7 @@ module ActionLogic
       end
 
       def __private__type
-        :use_case
+        "use_case"
       end
     end
   end

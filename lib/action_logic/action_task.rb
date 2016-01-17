@@ -17,7 +17,7 @@ module ActionLogic
       end
 
       def __private__type
-        :task
+        "task"
       end
     end
   end
