@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>ActionLogic by rewinfrey</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">ActionLogic</h1>
+      <h2 class="project-tagline">Flexible and powerful business logic abstraction for teams of varying experience levels.</h2>
+      <a href="https://github.com/rewinfrey/ActionLogic" class="btn">View on GitHub</a>
+      <a href="https://github.com/rewinfrey/ActionLogic/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/rewinfrey/ActionLogic/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="actionlogic" class="anchor" href="#actionlogic" aria-hidden="true"><span class="octicon octicon-link"></span></a>ActionLogic</h1>
+
+<p><a href="https://codeship.com/projects/114179"><img src="https://codeship.com/projects/7737cf40-6808-0133-84a7-460d97cd31f0/status?branch=master" alt="Codeship Status for rewinfrey/action_logic"></a>
+<a href="https://badge.fury.io/rb/action_logic"><img src="https://badge.fury.io/rb/action_logic.svg" alt="Gem Version"></a>
+<a href="https://codeclimate.com/github/rewinfrey/action_logic"><img src="https://codeclimate.com/github/rewinfrey/action_logic/badges/gpa.svg" alt="Code Climate"></a>
+<a href="https://coveralls.io/github/rewinfrey/action_logic?branch=master"><img src="https://coveralls.io/repos/rewinfrey/action_logic/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a></p>
+
+<h3>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h3>
+
+<p>This is a business logic abstraction gem that provides structure to the organization and composition of business logic in a Ruby or Rails application. <code>ActionLogic</code> is inspired by gems like <a href="https://github.com/orgsync/active_interaction">ActiveInteraction</a>, <a href="https://github.com/hashrocket/decent_exposure">DecentExposure</a>, <a href="https://github.com/collectiveidea/interactor">Interactor</a>, <a href="https://github.com/adomokos/light-service">Light-Service</a>, <a href="https://github.com/cypriss/mutations">Mutations</a>, <a href="https://github.com/saturnflyer/surrounded">Surrounded</a>, <a href="https://github.com/apotonick/trailblazer">Trailblazer</a> and <a href="https://github.com/krisleech/wisper">Wisper</a>.</p>
+
+<p>Why another business logic abstraction gem? <code>ActionLogic</code> provides teams of various experience levels with a minimal yet powerful set of abstractions that promote easy to write and easy to understand code. By using <code>ActionLogic</code>, teams can more quickly and easily write business logic that honors the SOLID principles, is easy to test and easy to reason about, and provides a flexible foundation from which teams can model and define their application's business domains by focusing on reusable units of work that can be composed and validated with one another.</p>
+
+<h3>
+<a id="contents" class="anchor" href="#contents" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contents</h3>
+
+<ul>
+<li><a href="#backstory">Backstory</a></li>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#actioncontext"><code>ActionContext</code></a></li>
+<li><a href="#actiontask"><code>ActionTask</code></a></li>
+<li><a href="#actionusecase"><code>ActionUseCase</code></a></li>
+<li><a href="#actioncoordinator"><code>ActionCoordinator</code></a></li>
+<li><a href="#succeeding-an-actioncontext">Succeeding an <code>ActionContext</code></a></li>
+<li><a href="#failing-an-actioncontext">Failing an <code>ActionContext</code></a></li>
+<li><a href="#halting-an-actioncontext">Halting an <code>ActionContext</code></a></li>
+<li><a href="#custom-actioncontext">Custom <code>ActionContext</code> Status</a></li>
+<li><a href="#error-handling">Error Handling</a></li>
+<li><a href="#attribute-validations">Attribute Validations</a></li>
+<li><a href="#type-validations">Type Validations</a></li>
+<li><a href="#custom-type-validations">Custom Type Validations</a></li>
+<li><a href="#presence-validations">Presence Validations</a></li>
+<li><a href="#custom-presence-validations">Custom Presence Validations</a></li>
+<li><a href="#before-validations">Before Validations</a></li>
+<li><a href="#after-validations">After Validations</a></li>
+<li><a href="#around-validations">Around Validations</a></li>
+</ul>
+
+<h3>
+<a id="backstory" class="anchor" href="#backstory" aria-hidden="true"><span class="octicon octicon-link"></span></a>Backstory</h3>
+
+<p>Consider a traditional e-commerce Rails application. Users can shop online and add items to their shopping cart until they are ready to check out.
+The happy path scenario might go something like this: the user submits their order form, an orders controller action records the order in the database,
+submits the order total to a payment processor, waits for a response from the payment processor, and upon a success response from the payment processor sends
+an order confirmation email to the user, the order is sent internally to the warehouse for fulfillment which requires creating various records in the database,
+and finally the server responds to the initial POST request with a rendered html page including a message indicating the order was successfully processed. In this
+work flow there are at least 7 distinct steps or tasks that must be satisfied in order for the application's business logic to be considered correct according
+to specifications.</p>
+
+<p>Although this flow works well for most users, there are other users whose credit card information might be expired or users who might attempt to check out when
+your application's payment processor service is down. Additional edge case scenarios start to pop up in error logs as exception emails fill up your inbox.
+What happens when that user that is notorious for having 100 tabs open forgets to complete the checkout process and submits a two week old order form that
+includes an item that your e-commerce store no longer stocks? What happens if an item is sold out? The edge cases and exception emails pile up, and as each one comes in
+you add more and more logic to that controller action.</p>
+
+<p>What once was a simple controller action designed with only the happy path of a successful checkout in mind has now become 100 lines long with 5 to 10 levels
+of nested if statements. The voice of Uncle Bob starts ringing in your ears and you know there must be a better way. You think on it for awhile and consider not only
+the technical challenges of refactoring this code, but you'd also like to make this code reusable and modular. You want this code to be easy to test and easy to maintain.
+You want to honor the SOLID principles by writing classes that are singularly focused and easy to extend. You reason these new classes should only have to change if the
+business logic they execute changes. You see that there are relationships between the entities and you see the possibility of abstractions that allow entities of similar types
+to interact nicely with each other. You begin thinking about interfaces and the Liskov Substitution Principle, and eventually your mind turns towards domains and data modeling.
+Where does it end you wonder?</p>
+
+<p>But you remember your team. It's a team of people all wanting to do their best, and represent a variety of backgrounds and experiences. Each person has varying degress of familiarity
+with different types of abstractions and approaches, and you wonder what abstractions might be as easy to work with for a new developer as they are for an experienced developer?
+You consider DSL's you've used in the past and wonder what is that ideal balance between magic and straightforward OOP design?</p>
+
+<p>As more and more questions pile up in the empty space of your preferred text editor, you receive another exception email for a new problem with the order flow. The questions about
+how to refactor this code transform into asking questions about how can you edit the existing code to add the new fix? Add a new nested if statement? You do what you can given the
+constraints you're faced with, and add another 5 lines and another nested if statement. You realize there is not enough time to make this refactor happen, and you've got to push the
+fix out as soon as possible. Yet, as you merge your feature branch in master and deploy a hotfix, you think surely there must be a better way.</p>
+
+<p><code>ActionLogic</code> was born from many hours thinking about these questions and considering how it might be possible to achieve a generic set of abstractions to help guide
+business logic that would promote the SOLID principles and be easy for new and experienced developers to understand and extend. It's not a perfect abstraction (as nothing is),
+but <em>can</em> help simplify your application's business logic by encouraging you to consider the smallest units of work required for your business logic while offering features
+like type and presence validation that help reduce or eliminate boiler plate, defensive code (nil checks anyone?). However, as with all general purpose libraries, your mileage
+will vary.</p>
+
+<h3>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h3>
+
+<p>There are three levels of abstraction provided by <code>ActionLogic</code>:</p>
+
+<ul>
+<li><a href="#action_task"><code>ActionTask</code> (a concrete unit of work)</a></li>
+<li><a href="#action_use_case"><code>ActionUseCase</code> (organizes two or more <code>ActionTasks</code>)</a></li>
+<li><a href="#action_coordinator"><code>ActionCoordinator</code> (coordinates two or more <code>ActionUseCases</code>)</a></li>
+</ul>
+
+<p>Each level of abstraction operates with a shared, mutable data structure referred to as a <code>context</code> and is an instance of <code>ActionContext</code>. This shared <code>context</code> is threaded
+through each <code>ActionTask</code>, <code>ActionUseCase</code> and / or <code>ActionCoordinator</code> until all work is completed. The resulting <code>context</code> is returned to the original caller
+(typically in a Rails application this will be a controller action). In the problem described above we might have an <code>ActionUseCase</code> for organizing the checkout order flow,
+and each of the distinct steps would be represented by a separate <code>ActionTask</code>. However, overtime it may make more sense to split apart the singular <code>ActionUseCase</code> for the order
+flow into smaller <code>ActionUseCases</code> that are isolated by their domain (users, payment processor, inventory / warehouse, email, etc.). Considering that we limit our <code>ActionUseCases</code> to
+single domains, then the <code>ActionCoordinator</code> abstraction would allow us to coordinate communication between the <code>ActionUseCases</code> and their <code>ActionTasks</code> to fulfill the necessary
+work required when a user submits a checkout order form.</p>
+
+<p>The diagram below illustrates how the <code>ActionTask</code>, <code>ActionUseCase</code> and <code>ActionCoordinator</code> abstractions work together, and the role of <code>ActionContext</code> as the primary, single input:</p>
+
+<p><img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/overview_diagram.png"></p>
+
+<h3>
+<a id="actioncontext" class="anchor" href="#actioncontext" aria-hidden="true"><span class="octicon octicon-link"></span></a>ActionContext</h3>
+
+<p>The glue that binds the three layers of abstraction provided in <code>ActionLogic</code> is <code>ActionContext</code>. Anytime an <code>ActionTask</code>, <code>ActionUseCase</code> or <code>ActionCoordinator</code> is invoked
+an instance of <code>ActionContext</code> is created and passed as an input parameter to the receiving execution context. Because each of the three abstractions works in the same way
+with <code>ActionContext</code>, it is intended to be a relatively simple "learn once understand everywhere" abstraction.</p>
+
+<p>Instances of <code>ActionContext</code> are always referred to within the body of <code>call</code> methods defined in any <code>ActionTask</code>, <code>ActionUseCase</code> or <code>ActionCoordinator</code> as <code>context</code>. An
+instance of <code>ActionContext</code> is a thin wrapper around Ruby's standard library <a href="http://ruby-doc.org/stdlib-2.0.0/libdoc/ostruct/rdoc/OpenStruct.html"><code>OpenStruct</code></a>. This allows
+instances of <code>ActionContext</code> to be maximally flexible. Arbitrary attributes can be defined on a <code>context</code> and their values can be of any type.</p>
+
+<p>In addition to allowing arbitrary attributes and values to be defined on a <code>context</code>, instances of <code>ActionContext</code> also conform to a set of simple rules:</p>
+
+<ul>
+<li>Every <code>context</code> instance is instantiated with a default <code>status</code> of <code>:success</code>
+</li>
+<li>A <code>context</code> responds to <code>success?</code> which returns true if the <code>status</code> is <code>:success</code>
+</li>
+<li>A <code>context</code> responds to <code>fail!</code> which sets the <code>status</code> to <code>:failure</code>
+</li>
+<li>A <code>context</code> responds to <code>fail?</code> which returns true if the <code>status</code> is <code>:failure</code>
+</li>
+<li>A <code>context</code> rseponds to <code>halt!</code> which sets the <code>status</code> to <code>:halted</code>
+</li>
+<li>A <code>context</code> responds to <code>halted?</code> which returns true if the <code>status</code> is <code>:halted</code>
+</li>
+</ul>
+
+<p>Enough with the words, let's look at some code! The following shows an instance of <code>ActionContext</code> and its various abilities:</p>
+
+<div class="highlight highlight-source-ruby"><pre>context <span class="pl-k">=</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionContext</span>.<span class="pl-k">new</span>
+
+context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:success&gt;</span>
+
+<span class="pl-c"># default status is `:success`:</span>
+context.status <span class="pl-c"># =&gt; :success</span>
+
+<span class="pl-c"># defining a new attribute called `name` with the value `"Example"`:</span>
+context.name <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>Example<span class="pl-pds">"</span></span>
+
+<span class="pl-c"># retrieving the value of the `name` attribute:</span>
+context.name <span class="pl-c"># =&gt; "Example"</span>
+
+<span class="pl-c"># you can set attributes to anything, including Procs:</span>
+context.lambda_example <span class="pl-k">=</span> <span class="pl-k">-</span><span class="pl-k">&gt;</span> { <span class="pl-s"><span class="pl-pds">"</span>here<span class="pl-pds">"</span></span> }
+
+context.lambda_example <span class="pl-c"># =&gt; #&lt;Proc:0x007f8d6b0a9ba0@-:11 (lambda)&gt;</span>
+
+context.lambda_example.call <span class="pl-c"># =&gt; "here"</span>
+
+<span class="pl-c"># contexts can be failed:</span>
+context.fail!
+
+context.status <span class="pl-c"># =&gt; :failure</span>
+
+context.failure? <span class="pl-c"># =&gt; true</span>
+
+<span class="pl-c"># contexts can also be halted:</span>
+context.halt!
+
+context.status <span class="pl-c"># =&gt; :halted</span>
+
+context.halted? <span class="pl-c"># =&gt; true</span></pre></div>
+
+<p>Now that we have seen what <code>ActionContext</code> can do, let's take a look at the lowest level of absraction in <code>ActionLogic</code> that consumes instances of <code>ActionContext</code>, the <code>ActionTask</code>
+abstraction.</p>
+
+<h3>
+<a id="actiontask" class="anchor" href="#actiontask" aria-hidden="true"><span class="octicon octicon-link"></span></a>ActionTask</h3>
+
+<p>At the core of every <code>ActionLogic</code> work flow is an <code>ActionTask</code>. These classes are the lowest level of abstraction in <code>ActionLogic</code> and are where concrete work is performed. All <code>ActionTasks</code> conform to the same structure and incorporate all features of <code>ActionLogic</code> including validations and error handling.</p>
+
+<p>To implement an <code>ActionTask</code> class you must define a <code>call</code> method. You can also specify any before, after or around validations or an error handler. The following code example demonstrates an <code>ActionTask</code> class that includes before and after validations, and also demonstrates how an <code>ActionTask</code> is invoked :</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:expected_attribute1</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">String</span> },
+                   <span class="pl-c1">:expected_attribute2</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Fixnum</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+  validates_after  <span class="pl-c1">:example_attribute1</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">String</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(example_attribute1) { <span class="pl-k">!</span>example_attribute1.empty? } }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    <span class="pl-c"># adds `example_attribute1` to the shared `context` with the value "Example value"</span>
+    context.example_attribute1 <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>New value from context attributes: <span class="pl-pse">#{</span><span class="pl-s1">context.expected_attribute1</span><span class="pl-pse"><span class="pl-s1">}</span></span> <span class="pl-pse">#{</span><span class="pl-s1">context.expected_attribute2</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-c"># ActionTasks are invoked by calling an `execute` static method directly on the class with an optional hash of key value pairs:</span>
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:expected_attribute1</span> =&gt; <span class="pl-s"><span class="pl-pds">"</span>example<span class="pl-pds">"</span></span>, <span class="pl-c1">:expected_attribute2</span> =&gt; <span class="pl-c1">123</span>)
+
+<span class="pl-c"># The result object is the shared context object (an instance of ActionContext):</span>
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_attribute1="New value from context attributes: example 123"&gt;</span></pre></div>
+
+<p>The <code>ActionTaskExample</code> is invoked using the static method <code>execute</code> which takes an optional hash of attributes that is converted into an <code>ActionContext</code>.
+Assuming the before validations are satisfied, the <code>call</code> method is invoked. In the body of the <code>call</code> method the <code>ActionTask</code> can access the shared <code>ActionContext</code>
+instance via a <code>context</code> object. This shared <code>context</code> object allows for getting and setting attributes as needed. When the <code>call</code> method returns, the <code>context</code>
+is validated against any defined after validations, and the <code>context</code> is then returned to the caller.</p>
+
+<p>The diagram below is a visual representation of how an <code>ActionTask</code> is evaluted when its <code>execute</code> method is invoked from a caller:</p>
+
+<p><img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_task_diagram.png"></p>
+
+<p>Although this example is for the <code>ActionTask</code> abstraction, <code>ActionUseCase</code> and <code>ActionCoordinator</code> follow the same pattern. The difference is that <code>ActionUseCase</code>
+is designed to organize multiple <code>ActionTasks</code>, and <code>ActionCoordinator</code> is designed to organize many <code>ActionUseCases</code>.</p>
+
+<h3>
+<a id="actionusecase" class="anchor" href="#actionusecase" aria-hidden="true"><span class="octicon octicon-link"></span></a>ActionUseCase</h3>
+
+<p>As business logic grows in complexity the number of steps or tasks required to fulfill that business logic tends to increase. Managing this complexity is a problem every team must face.
+Abstractions can help teams of varying experience levels work together and promote code that remains modular and simple to understand and extend. <code>ActionUseCase</code> represents a layer of
+abstraction that organizes multiple <code>ActionTasks</code> and executes each <code>ActionTask</code> in the order they are defined. Each task receives the same shared <code>context</code> so tasks can be composed together.</p>
+
+<p>To implement an <code>ActionUseCase</code> class you must define a <code>call</code> method and a <code>tasks</code> method. You also can specify any before, after or around validations or an error handler.
+The following is an example showcasing how an <code>ActionUseCase</code> class organizes the execution of multiple <code>ActionTasks</code> and defines before and after validations on the shared <code>context</code>:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionUseCaseExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionUseCase</span>
+
+  validates_before <span class="pl-c1">:expected_attribute1</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">String</span> },
+                   <span class="pl-c1">:expected_attribute2</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Fixnum</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+  validates_after  <span class="pl-c1">:example_task1</span>    =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> },
+                   <span class="pl-c1">:example_task2</span>    =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> },
+                   <span class="pl-c1">:example_task3</span>    =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> },
+                   <span class="pl-c1">:example_usecase1</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+
+  <span class="pl-c"># The `call` method is invoked prior to invoking any of the ActionTasks defined by the `tasks` method.</span>
+  <span class="pl-c"># The purpose of the `call` method allows us to prepare the shared `context` prior to invoking the ActionTasks.</span>
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success&gt;</span>
+    context.example_usecase1 <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">tasks</span>
+    [<span class="pl-c1">ActionTaskExample1</span>,
+     <span class="pl-c1">ActionTaskExample2</span>,
+     <span class="pl-c1">ActionTaskExample3</span>]
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionTaskExample1</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+  validates_after <span class="pl-c1">:example_task1</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true&gt;</span>
+    context.example_task1 <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionTaskExample2</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+  validates_after <span class="pl-c1">:example_task2</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true&gt;</span>
+    context.example_task2 <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionTaskExample3</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+  validates_after <span class="pl-c1">:example_task3</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true, example_task2=true&gt;</span>
+    context.example_task3 <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-c"># To invoke the ActionUseCaseExample, we call its execute method with the required attributes:</span>
+result <span class="pl-k">=</span> <span class="pl-c1">ActionUseCaseExample</span>.execute(<span class="pl-c1">:expected_attribute1</span> =&gt; <span class="pl-s"><span class="pl-pds">"</span>example<span class="pl-pds">"</span></span>, <span class="pl-c1">:expected_attribute2</span> =&gt; <span class="pl-c1">123</span>)
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext expected_attribute1="example", expected_attribute2=123, status=:success, example_usecase1=true, example_task1=true, example_task2=true, example_task3=true&gt;</span></pre></div>
+
+<p>By following the value of the shared <code>context</code> from the <code>ActionUseCaseExample</code> to each of the <code>ActionTask</code> classes, it is possible to see how the shared <code>context</code>
+is mutated to accomodate the various attributes and their values each execution context adds to the <code>context</code>. It also reveals the order in which the <code>ActionTasks</code>
+are evaluated, and indicates that the <code>call</code> method of the <code>ActionUseCaseExample</code> is invoked prior to any of the <code>ActionTasks</code> defined in the <code>tasks</code> method.</p>
+
+<p>To help visualize the flow of execution when an <code>ActionUseCase</code> is invoked, this diagram aims to illustrate the relationship between <code>ActionUseCase</code> and <code>ActionTasks</code>
+and the order in which operations are performed:</p>
+
+<p><img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_use_case_diagram.png"></p>
+
+<h3>
+<a id="actioncoordinator" class="anchor" href="#actioncoordinator" aria-hidden="true"><span class="octicon octicon-link"></span></a>ActionCoordinator</h3>
+
+<p>Sometimes the behavior we wish our Ruby or Rails application to provide requires us to coordinate work between various domains of our application's business logic.
+The <code>ActionCoordinator</code> abstraction is intended to help coordinate multiple <code>ActionUseCases</code> by allowing you to define a plan of which <code>ActionUseCases</code> to invoke
+depending on the outcome of each <code>ActionUseCase</code> execution. The <code>ActionCoordinator</code> abstraction is the highest level of abstraction in <code>ActionLogic</code>.</p>
+
+<p>To implement an <code>ActionCoordinator</code> class, you must define a <code>call</code> method in addition to a <code>plan</code> method. The purpose of the <code>plan</code> method is to define a state
+transition map that links together the various <code>ActionUseCase</code> classes the <code>ActionCoordinator</code> is organizing, as well as allowing you to define error or halt
+scenarios based on the result of each <code>ActionUseCase</code>. The following code example demonstrates a simple <code>ActionCoordinator</code>:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionCoordinatorExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionCoordinator</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context.required_attribute1 <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>required attribute 1<span class="pl-pds">"</span></span>
+    context.required_attribute2 <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>required attribute 2<span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">plan</span>
+    {
+      <span class="pl-c1">ActionUseCaseExample1</span> =&gt; { <span class="pl-c1">:success</span> =&gt; <span class="pl-c1">ActionUseCaseExample2</span>,
+                                 <span class="pl-c1">:failure</span> =&gt; <span class="pl-c1">ActionUseCaseFailureExample</span> },
+      <span class="pl-c1">ActionUseCaseExample2</span> =&gt; { <span class="pl-c1">:success</span> =&gt; <span class="pl-c1">nil</span>,
+                                 <span class="pl-c1">:failure</span> =&gt; <span class="pl-c1">ActionUseCaseFailureExample</span> },
+      <span class="pl-c1">ActionUseCaseFailureExample</span> =&gt; { <span class="pl-c1">:success</span> =&gt; <span class="pl-c1">nil</span> }
+    }
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionUseCaseExample1</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionUseCase</span>
+
+  validates_before <span class="pl-c1">:required_attribute1</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">String</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2"&gt;</span>
+    context.example_usecase1 <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-c"># Normally `tasks` would define multiple tasks, but in this example, I've used one ActionTask to keep the overall code example smaller</span>
+  <span class="pl-k">def</span> <span class="pl-en">tasks</span>
+    [<span class="pl-c1">ActionTaskExample1</span>]
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionUseCaseExample2</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionUseCase</span>
+
+  validates_before <span class="pl-c1">:required_attribute2</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">String</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true&gt;</span>
+    context.example_usecase2 <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-c"># Normally `tasks` would define multiple tasks, but in this example, I've used one ActionTask to keep the overall code example smaller</span>
+  <span class="pl-k">def</span> <span class="pl-en">tasks</span>
+    [<span class="pl-c1">ActionTaskExample2</span>]
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-c"># In this example, we are not calling ActionUseCaseFailureExample, but is used to illustrate the purpose of the `plan` of our ActionCoordinator</span>
+<span class="pl-c"># in the event of a failure in one of the consumed `ActionUseCases`</span>
+<span class="pl-k">class</span> <span class="pl-en">ActionUseCaseFailureExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionUseCase</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">tasks</span>
+    [<span class="pl-c1">ActionTaskLogFailure</span>,
+     <span class="pl-c1">ActionTaskEmailFailure</span>]
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionTaskExample1</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+  validates_after <span class="pl-c1">:example_task1</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true&gt;</span>
+    context.example_task1 <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionTaskExample2</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+  validates_after <span class="pl-c1">:example_task2</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true, example_usecase2=true&gt;</span>
+    context.example_task2 <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionCoordinatorExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:success, required_attribute1="required attribute 1", required_attribute2="required attribute 2", example_usecase1=true, example_task1=true, example_usecase2=true, example_task2=true&gt;</span></pre></div>
+
+<p><img src="https://raw.githubusercontent.com/rewinfrey/action_logic/master/resources/action_coordinator_diagram.png"></p>
+
+<h3>
+<a id="succeeding-an-actioncontext" class="anchor" href="#succeeding-an-actioncontext" aria-hidden="true"><span class="octicon octicon-link"></span></a>Succeeding an <code>ActionContext</code>
+</h3>
+
+<p>By default, the value of the <code>status</code> attribute of instances of <code>ActionContext</code> is <code>:success</code>. Normally this is useful information for the caller of an <code>ActionTask</code>,
+<code>ActionUseCase</code> or <code>ActionCoordinator</code> because it informs the caller that the various execution context(s) were successful. In other words, a <code>:success</code> status
+indicates that none of the execution contexts had a failure or halted execution.</p>
+
+<h3>
+<a id="failing-an-actioncontext" class="anchor" href="#failing-an-actioncontext" aria-hidden="true"><span class="octicon octicon-link"></span></a>Failing an <code>ActionContext</code>
+</h3>
+
+<p>Using <code>context.fail!</code> does two important things: it immediately stops the execution of any proceeding business logic (prevents any additional <code>ActionTasks</code> from executing)
+and also sets the status of the <code>context</code> as <code>:failure</code>. This status is most applicable to the caller or an <code>ActionCoordinator</code> that might have a plan specifically for a <code>:failure</code>
+status of a resulting <code>ActionUseCase</code>.</p>
+
+<p>The following is a simple example to show how a <code>context</code> is failed within a <code>call</code> method:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    <span class="pl-k">if</span> failure_condition?
+      context.fail!
+    <span class="pl-k">end</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">failure_condition?</span>
+    <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:failure, message=""&gt;</span></pre></div>
+
+<p>When failing a <code>context</code> it is possible to also specify a message:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    <span class="pl-k">if</span> failure_condition?
+      context.fail! <span class="pl-s"><span class="pl-pds">"</span>Something was invalid<span class="pl-pds">"</span></span>
+    <span class="pl-k">end</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">failure_condition?</span>
+    <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:failure, message="Something was invalid"&gt;</span>
+
+result.message <span class="pl-c"># =&gt; "Something was invalid"</span></pre></div>
+
+<p>From the above example we see how it is possible to <code>fail!</code> a <code>context</code> while also specifying a clarifying message about the failure condition. Later, we retrieve
+that failure message via the <code>message</code> attribute defined on the returned <code>context</code>.</p>
+
+<h3>
+<a id="halting-an-actioncontext" class="anchor" href="#halting-an-actioncontext" aria-hidden="true"><span class="octicon octicon-link"></span></a>Halting an <code>ActionContext</code>
+</h3>
+
+<p>Like, failing a context, Using <code>context.halt!</code> does two important things: it immediately halts the execution of any proceeding business logic (prevents any additional <code>ActionTasks</code>
+from executing) and also sets the status of the <code>context</code> as <code>:halted</code>. The caller may use that information to define branching logic or an <code>ActionCoordinator</code> may use that
+information as part of its <code>plan</code>.</p>
+
+<p>However, unlike failing a <code>context</code>, halting is designed to indicate that no more processing is required, but otherwise execution was successful.</p>
+
+<p>The following is a simple example to show how a <code>context</code> is halted within a <code>call</code> method:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    <span class="pl-k">if</span> halt_condition?
+      context.halt!
+    <span class="pl-k">end</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">halt_condition?</span>
+    <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:halted, message=""&gt;</span></pre></div>
+
+<p>When failing a <code>context</code> it is possible to also specify a message:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    <span class="pl-k">if</span> halt_condition?
+      context.halt! <span class="pl-s"><span class="pl-pds">"</span>Something required a halt<span class="pl-pds">"</span></span>
+    <span class="pl-k">end</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">halt_condition?</span>
+    <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:halted, message="Something required a halt"&gt;</span>
+
+result.message <span class="pl-c"># =&gt; "Something required a halt"</span></pre></div>
+
+<p>From the above example we see how it is possible to <code>halt!</code> a <code>context</code> while also specifying a clarifying message about the halt condition. Later, we retrieve
+that halt message via the <code>message</code> attribute defined on the returned <code>context</code>.</p>
+
+<h3>
+<a id="custom-actioncontext-status" class="anchor" href="#custom-actioncontext-status" aria-hidden="true"><span class="octicon octicon-link"></span></a>Custom <code>ActionContext</code> Status</h3>
+
+<p>It is worthwhile to point out that you should not feel limited to only using the three provided statuses of <code>:success</code>, <code>:failure</code> or <code>:halted</code>. It is easy to implement your
+own system of statuses if you prefer. For example, consider a system that is used to defining various status codes or disposition codes to indicate the result of some business
+logic. Instances of <code>ActionContext</code> can be leveraged to indicate these disposition codes by using the <code>status</code> attribute, or by defining custom attributes. You are encouraged
+to expirement and play with the flexibility provided to you by <code>ActionContext</code> in determining what is optimal for your given code contexts and your team.</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">RailsControllerExample<span class="pl-e"> &lt; ApplicationController</span></span>
+  <span class="pl-k">def</span> <span class="pl-en">create</span>
+    <span class="pl-k">case</span> create_use_case.status
+      <span class="pl-k">when</span> <span class="pl-c1">:disposition_1</span> <span class="pl-k">then</span> <span class="pl-c1">ActionUseCaseSuccess1</span>.execute(create_use_case)
+      <span class="pl-k">when</span> <span class="pl-c1">:disposition_2</span> <span class="pl-k">then</span> <span class="pl-c1">ActionUseCaseSuccess2</span>.execute(create_use_case)
+      <span class="pl-k">when</span> <span class="pl-c1">:disposition_9</span> <span class="pl-k">then</span> <span class="pl-c1">ActionUseCaseFailure</span>.execute(create_use_case)
+      <span class="pl-k">else</span>
+        <span class="pl-c1">ActionUseCaseDefault</span>.execute(create_use_case)
+    <span class="pl-k">end</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">private</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">create_use_case</span>
+    <span class="pl-smi">@create_use_case</span> <span class="pl-k">||=</span> <span class="pl-c1">ActionUseCaseExample</span>.execute(params)
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span></pre></div>
+
+<p>Although this contrived example would be ideal for an <code>ActionCoordinator</code> (because the result of <code>ActionUseCaseExample</code> drives the execution of the next <code>ActionUseCase</code>), this
+example serves to show that <code>status</code> can be used with custom disposition codes to drive branching behavior.</p>
+
+<h3>
+<a id="error-handling" class="anchor" href="#error-handling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Error Handling</h3>
+
+<p>During execution of an <code>ActionTask</code>, <code>ActionUseCase</code> or <code>ActionCoordinator</code> you may wish to define custom behavior for handling errors. Within any of these classes
+you can define an <code>error</code> method that receives as its input the error exception. Invoking an <code>error</code> method does not make any assumptions about the <code>status</code> of the
+underlying <code>context</code>. Execution of the <code>ActionTask</code>, <code>ActionUseCase</code> or <code>ActionCoordinator</code> also stops after the <code>error</code> method returns, and execution of the work
+flow continues as normal unless the <code>context</code> is failed or halted.</p>
+
+<p>The following example is a simple illustration of how an <code>error</code> method is invoked for an <code>ActionTask</code>:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context.before_raise <span class="pl-k">=</span> <span class="pl-c1">true</span>
+    <span class="pl-k">raise</span> <span class="pl-s"><span class="pl-pds">"</span>Something broke<span class="pl-pds">"</span></span>
+    context.after_raise <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">error</span>(<span class="pl-smi">e</span>)
+    context.error <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>the error is passed in as an input parameter: <span class="pl-pse">#{</span><span class="pl-s1">e.class</span><span class="pl-pse"><span class="pl-s1">}</span></span><span class="pl-pds">"</span></span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+<span class="pl-c"># the status of the context is not mutated</span>
+result.status <span class="pl-c"># =&gt; :success</span>
+
+result.error <span class="pl-c"># =&gt; "the error is passed in as an input parameter: RuntimeError"</span>
+
+result.before_raise <span class="pl-c"># =&gt; true</span>
+
+result.after_raise <span class="pl-c"># =&gt; nil</span></pre></div>
+
+<p>It is important to note that defining an <code>error</code> method is <strong>not</strong> required. If at any point in the execution of an <code>ActionTask</code>, <code>ActionUseCase</code> or <code>ActionCoordinator</code>
+an uncaught exception is thrown <strong>and</strong> an <code>error</code> method is <strong>not</strong> defined, the exception is raised to the caller.</p>
+
+<h3>
+<a id="attribute-validations" class="anchor" href="#attribute-validations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Attribute Validations</h3>
+
+<p>The most simple and basic type of validation offered by <code>ActionLogic</code> is attribute validation. To require that an attribute be defined on an instance of <code>ActionContext</code>, you
+need only specify the name of the attribute and an empty hash with one of the three validation types (before, after or around):</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:required_attribute1</span> =&gt; {}
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:required_attribute1</span> =&gt; <span class="pl-c1">true</span>)
+
+result.status <span class="pl-c"># =&gt; :success</span>
+
+result.required_attribute1 <span class="pl-c"># =&gt; true</span></pre></div>
+
+<p>However, in the above example, if we were to invoke the <code>ActionTaskExample</code> without the <code>required_attribute1</code> parameter, the before validation would fail and raise
+an <code>ActionLogic::MissingAttributeError</code> and also detail which attribute is missing:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:required_attribute1</span> =&gt; {}
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-c1">ActionTaskExample</span>.execute <span class="pl-c"># ~&gt; context: ActionTaskExample message: [:required_attribute1] (ActionLogic::MissingAttributeError)</span></pre></div>
+
+<p>Attribute validations are defined in the same way regardless of the timing of the validation (<a href="#before-validations">before</a>, <a href="#after-validations">after</a> or
+<a href="#around-validations">around</a>). Please refer to the relevant sections for examples of their usage.</p>
+
+<h3>
+<a id="type-validations" class="anchor" href="#type-validations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Type Validations</h3>
+
+<p>In addition to attribute validations, <code>ActionLogic</code> also allows you to validate against the type of the value of the attribute you expect to be defined in an instance
+of <code>ActionContext</code>. To understand the default types <code>ActionLogic</code> validates against, please see the following example:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_after <span class="pl-c1">:integer_test</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Fixnum</span> },
+                  <span class="pl-c1">:float_test</span>   =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Float</span> },
+                  <span class="pl-c1">:string_test</span>  =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">String</span> },
+                  <span class="pl-c1">:truthy_test</span>  =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">TrueClass</span> },
+                  <span class="pl-c1">:falsey_test</span>  =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">FalseClass</span> },
+                  <span class="pl-c1">:hash_test</span>    =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Hash</span> },
+                  <span class="pl-c1">:array_test</span>   =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Array</span> },
+                  <span class="pl-c1">:symbol_test</span>  =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Symbol</span> },
+                  <span class="pl-c1">:nil_test</span>     =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">NilClass</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context.integer_test <span class="pl-k">=</span> <span class="pl-c1">123</span>
+    context.float_test   <span class="pl-k">=</span> <span class="pl-c1">1.0</span>
+    context.string_test  <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span>
+    context.truthy_test  <span class="pl-k">=</span> <span class="pl-c1">true</span>
+    context.falsey_test  <span class="pl-k">=</span> <span class="pl-c1">false</span>
+    context.hash_test    <span class="pl-k">=</span> {}
+    context.array_test   <span class="pl-k">=</span> []
+    context.symbol_test  <span class="pl-k">=</span> <span class="pl-c1">:symbol</span>
+    context.nil_test     <span class="pl-k">=</span> <span class="pl-c1">nil</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:success,</span>
+            <span class="pl-c">#                            integer_test=123,</span>
+            <span class="pl-c">#                            float_test=1.0,</span>
+            <span class="pl-c">#                            string_test="test",</span>
+            <span class="pl-c">#                            truthy_test=true,</span>
+            <span class="pl-c">#                            falsey_test=false,</span>
+            <span class="pl-c">#                            hash_test={},</span>
+            <span class="pl-c">#                            array_test=[],</span>
+            <span class="pl-c">#                            symbol_test=:symbol,</span>
+            <span class="pl-c">#                            nil_test=nil&gt;</span></pre></div>
+
+<p>It's important to point out that Ruby's <code>true</code> and <code>false</code> are not <code>Boolean</code> but <code>TrueClass</code> and <code>FalseClass</code> respectively. Additionally, <code>nil</code>'s type is <code>NilClass</code> in Ruby.
+Also potentially surprising to some is that Ruby's integer type is of class <code>Fixnum</code>, but floats are of class <code>Float</code>.</p>
+
+<p>As we saw with attribute validations, if an attribute's value does not conform to the type expected, <code>ActionLogic</code> will raise an <code>ActionLogic::AttributeTypeError</code>
+with a detailed description about which attribute's value failed the validation:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_after <span class="pl-c1">:integer_test</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Fixnum</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context.integer_test <span class="pl-k">=</span> <span class="pl-c1">1.0</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-c1">ActionTaskExample</span>.execute <span class="pl-c"># ~&gt; context: ActionTaskExample message: Attribute: integer_test with value: 1.0 was expected to be of type Fixnum but is Float (ActionLogic::AttributeTypeError)</span></pre></div>
+
+<p>In addition to the above default types it is possible to also validate against user defined types.</p>
+
+<h3>
+<a id="custom-type-validations" class="anchor" href="#custom-type-validations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Custom Type Validations</h3>
+
+<p>If you would like to validate the type of attributes on a given <code>context</code> with your application's classes, <code>ActionLogic</code> is happy to provide that functionality.</p>
+
+<p>Let's consider the following example:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ExampleClass</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_after <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">ExampleClass</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context.example_attribute <span class="pl-k">=</span> <span class="pl-c1">ExampleClass</span>.<span class="pl-k">new</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext status=:success, example_attribute=#&lt;ExampleClass:0x007f95d1922bd8&gt;&gt;</span></pre></div>
+
+<p>In the above example, a custom class <code>ExampleClass</code> is defined. In order to type validate against this class, the required format for the name of the class is simply
+the class constant <code>ExampleClass</code>.</p>
+
+<p>If a custom type validation fails, <code>ActionLogic</code> provides the same <code>ActionLogic::AttributeTypeError</code> with a detailed explanation about what attribute is in violation
+of the type validation:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ExampleClass</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">OtherClass</span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_after <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">ExampleClass</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context.example_attribute <span class="pl-k">=</span> <span class="pl-c1">OtherClass</span>.<span class="pl-k">new</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-c1">ActionTaskExample</span>.execute <span class="pl-c"># ~&gt; context: ActionTaskExample message: Attribute: example_attribute with value: #&lt;OtherClass:0x007fb5ca04edb8&gt; was expected to be of type ExampleClass but is OtherClass (ActionLogic::AttributeTypeError)</span></pre></div>
+
+<p>Attribute and type validations are very helpful, but in some situations this is not enough. Additionally, <code>ActionLogic</code> provides presence validation so you can also verify that
+a given attribute on a context not only has the correct type, but also has a value that is considered <code>present</code>.</p>
+
+<h3>
+<a id="presence-validations" class="anchor" href="#presence-validations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Presence Validations</h3>
+
+<p><code>ActionLogic</code> also allows for presence validation for any attribute on an instance of <code>ActionContext</code>. Like other validations, presence validations can be specified in before, after or
+around validations.</p>
+
+<p>By default, presence validations simply check to determine if an attribute's value is not <code>nil</code> or is not <code>false</code>. To define a presence validation, you need only specify <code>:presence =&gt; true</code>
+for the attribute you wish to validate against:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; <span class="pl-c1">123</span>)
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=123, status=:success&gt;</span></pre></div>
+
+<p>However, if a presence validation fails, <code>ActionLogic</code> will raise an <code>ActionLogic::PresenceError</code> with a detailed description about the attribute failing the presence validation
+and why:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:presence</span> =&gt; <span class="pl-c1">true</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; <span class="pl-c1">nil</span>) <span class="pl-c"># ~&gt; context: ActionTaskExample message: Attribute: example_attribute is missing value in context but presence validation was specified (ActionLogic::PresenceError)</span></pre></div>
+
+<h3>
+<a id="custom-presence-validations" class="anchor" href="#custom-presence-validations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Custom Presence Validations</h3>
+
+<p>Sometimes when wanting to validate presence of an attribute with an aggregate type (like <code>Array</code> or <code>Hash</code>), we may want to validate that such a type is not empty. If
+you wish to validate presence for a type that requires inspecting the value of the attribute, <code>ActionLogic</code> allows you the ability to define a custom <code>Proc</code> to validate
+an attribute's value against.</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(attribute) { attribute.any? } }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; [<span class="pl-s"><span class="pl-pds">"</span>element1<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>element2<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>element3<span class="pl-pds">"</span></span>])
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=["element1", "element2", "element3"], status=:success&gt;</span></pre></div>
+
+<p>In the example above, we define a lambda that accepts as input the value of the attribute on the <code>context</code>. In this case, we are interested in verifying that
+<code>example_attribute</code> is not an empty <code>Array</code> or an empty <code>Hash</code>. This passes our before validation because <code>ActionTaskExample</code> is invoked with an <code>example_attribute</code>
+whose value is an array consisting of three elements.</p>
+
+<p>However, if a custom presence validation fails, <code>ActionLogic</code> will raise an <code>ActionLogic::PresenceError</code> with a detailed description about the attribute failing
+the custom presence validation:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(attribute) { attribute.any? } }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+<span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; []) <span class="pl-c"># ~&gt; context: ActionTaskExample message: Attribute: example_attribute is missing value in context but custom presence validation was specified (ActionLogic::PresenceError)</span></pre></div>
+
+<p>In the above example, we have failed to pass the presence validation for <code>example_attribute</code> because the value of <code>example_attribute</code> is an empty array. When
+the custom presence validation lambda is called, the lambda returns <code>false</code> and the <code>ActionLogic::PresenceError</code> is thrown, with an error message indicating
+the attribute that failed the presence validation while also indicating that a custom presence validation was specified.</p>
+
+<h3>
+<a id="before-validations" class="anchor" href="#before-validations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Before Validations</h3>
+
+<p>If you combine Rails ActionController's <code>before_filter</code> and ActiveModel's <code>validates</code> then you have approximately what <code>ActionLogic</code> defines as <code>validates_before</code>.
+Before validations can be defined in any of the <code>ActionLogic</code> abstractions (<code>ActionTask</code>, <code>ActionUseCase</code> and <code>ActionCoordinator</code>). In each abstraction a <code>validates_before</code>
+operation is performed <em>before</em> invoking the <code>call</code> method.</p>
+
+<p>Before validations allow you to specify a required attribute and optionally its type and / or presence. The following example illustrates how to specify a before
+validation on a single attribute:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Array</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(attribute) { attribute.any? } }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; [<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>])
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=[1, 2, 3], status=:success&gt;</span></pre></div>
+
+<p>The following example illustrates how to specify a before validation for multiple attributes:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_before <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Array</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(attribute) { attribute.any? } },
+                   <span class="pl-c1">:example_attribute2</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Fixnum</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; [<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>], <span class="pl-c1">:example_attribute2</span> =&gt; <span class="pl-c1">1</span>)
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success&gt;</span></pre></div>
+
+<h3>
+<a id="after-validations" class="anchor" href="#after-validations" aria-hidden="true"><span class="octicon octicon-link"></span></a>After Validations</h3>
+
+<p>If you combine Rails ActionController's <code>after_filter</code> and ActiveModel's <code>validates</code> then you have approximately what <code>ActionLogic</code> defines as <code>validates_after</code>.
+After validations can be defined in any of the <code>ActionLogic</code> abstractions (<code>ActionTask</code>, <code>ActionUseCase</code> and <code>ActionCoordinator</code>). In each abstraction a <code>validates_after</code>
+operation is performed <em>after</em> invoking the <code>call</code> method.</p>
+
+<p>After validations allow you to specify a required attribute and optionally its type and / or presence. The following example illustrates how to specify an after
+validation on a single attribute:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_after <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Array</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(attribute) { attribute.any? } }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context.example_attribute <span class="pl-k">=</span> [<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>]
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=[1, 2, 3], status=:success&gt;</span></pre></div>
+
+<p>The following example illustrates how to specify an after validation for multiple attributes:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_after <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Array</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(attribute) { attribute.any? } },
+                  <span class="pl-c1">:example_attribute2</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Fixnum</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    context.example_attribute <span class="pl-k">=</span> [<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>]
+    context.example_attribute2 <span class="pl-k">=</span> <span class="pl-c1">1</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success&gt;</span></pre></div>
+
+<h3>
+<a id="around-validations" class="anchor" href="#around-validations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Around Validations</h3>
+
+<p>If you combine Rails ActionController's <code>around_filter</code> and ActiveModel's <code>validates</code> then you have approximately what <code>ActionLogic</code> defines as <code>validates_around</code>.
+Around validations can be defined in any of the <code>ActionLogic</code> abstractions (<code>ActionTask</code>, <code>ActionUseCase</code> and <code>ActionCoordinator</code>). In each abstraction a <code>validates_around</code>
+operation is performed <em>before</em> and <em>after</em> invoking the <code>call</code> method.</p>
+
+<p>Around validations allow you to specify a required attribute and optionally its type and / or presence. The following example illustrates how to specify an around
+validation on a single attribute:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_around <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Array</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(attribute) { attribute.any? } }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; [<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>])
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=[1, 2, 3], status=:success&gt;</span></pre></div>
+
+<p>The following example illustrates how to specify an around validation for multiple attributes:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">ActionTaskExample</span>
+  <span class="pl-k">include</span> <span class="pl-c1">ActionLogic</span>::<span class="pl-c1">ActionTask</span>
+
+  validates_around <span class="pl-c1">:example_attribute</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Array</span>, <span class="pl-c1">:presence</span> =&gt; <span class="pl-k">-</span><span class="pl-k">&gt;</span>(attribute) { attribute.any? } },
+                   <span class="pl-c1">:example_attribute2</span> =&gt; { <span class="pl-c1">:type</span> =&gt; <span class="pl-c1">Fixnum</span> }
+
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span>
+
+result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; [<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>], <span class="pl-c1">:example_attribute2</span> =&gt; <span class="pl-c1">1</span>)
+
+result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success&gt;</span></pre></div>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/rewinfrey/ActionLogic">ActionLogic</a> is maintained by <a href="https://github.com/rewinfrey">rewinfrey</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-72522466-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
