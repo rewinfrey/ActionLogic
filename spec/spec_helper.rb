@@ -10,7 +10,7 @@ $LOAD_PATH << File.join(File.dirname(__FILE__))
 require 'action_logic'
 
 if ENV['BENCHMARK']
-  ActionLogic::ActionConfiguration.configure do |config|
+  ActionLogic.configure do |config|
     config.benchmark = true
     config.benchmark_log = File.open("benchmark.log", "w")
   end
