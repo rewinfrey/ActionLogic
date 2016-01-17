@@ -1,12 +1,12 @@
 module ActionLogic
   module ActionBenchmark
     class DefaultFormatter
-      def initialize(benchmark_log: ActionConfiguration.benchmark_log)
+      def initialize(benchmark_log: ActionLogic.benchmark_log)
         @benchmark_log = benchmark_log
       end
 
       def format(benchmark_result, context_name)
-        benchmark_log.printf("%-10s %-50s %-10s %-10f %-10s %-10f %-10s %-10f %-10s %-10f\n",
+        benchmark_log.printf("%s%s %s%f %s%f %s%f %s%f\n",
                              "context:",
                              context_name,
                              "user_time:",
