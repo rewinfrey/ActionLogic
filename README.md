@@ -32,6 +32,11 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 * [Before Validations](#before-validations)
 * [After Validations](#after-validations)
 * [Around Validations](#around-validations)
+* [Benchmarking](#benchmarking)
+	* [Enable Benchmarking](#enable-benchmarking)
+	* [Benchmark Logging](#benchmark-logging)
+	* [Benchark Log Formatting](#benchmark-log-formatting)
+	* [Custom Benchmark Handling](#custom-benchmark-handling)
 
 ### Backstory
 
@@ -924,4 +929,121 @@ end
 result = ActionTaskExample.execute(:example_attribute => [1, 2, 3], :example_attribute2 => 1)
 
 result # => #<ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success>
+```
+
+### Benchmarking
+
+At some point you may want to benchmark and profile the performance of your code. `ActionLogic` allows for benchmarking that
+range from simple defaults to highly customizable options depending on your use case and needs.
+
+### Enable Benchmarking
+
+Because benchmarking negatively impacts performance, we must explicitly tell `ActionLogic` that we want to benchmark (otherwise
+it defaults to ignore benchmarking). To do this, we configure `ActionLogic` using the `configure` method. With the provided
+`config` object, we explicitly enable benchmarking by setting `config.benchmark = true`:
+
+```ruby
+ActionLogic.configure do |config|
+  config.benchmark = true
+end
+```
+
+### Benchmark Logging
+
+Additionally, `ActionLogic` writes a benchmark log to `$stdout` by default, or you can override this default configuration
+by specifying a log file. To do this, you configure `ActionLogic` to use a `File` object for logging benchmark results via the
+`ActionLogic.configure` method:
+
+```ruby
+ActionLogic.configure do |config|
+  config.benchmark = true
+	config.benchmark_log = File.open("benchmark.log", "w")
+end
+```
+
+### Benchmark Log Formatting
+
+By default, `ActionLogic` formats benchmark logs in the following format:
+
+```
+context:ValidateAroundPresenceTestUseCase user_time:0.000000 system_time:0.000000 total_time:0.000000 real_time:0.000135
+...
+```
+
+The default format is intended to be machine readable for easy parsing and is not intended to be used for human reading.
+However, if you wish to change the format of the log output, `ActionLogic` allows you to override the default formatter by
+allowing you to provide your own formatter:
+
+```ruby
+ActionLogic.configure do |config|
+  config.benchmark = true
+	config.benchmark_log = File.open("benchmark.log", "w")
+	config.benchmark_formatter = YourCustomFormatter
+end
+```
+
+Where `YourCustomFormatter` subclasses `ActionLogic::ActionBenchmark::DefaultFormatter`:
+
+```ruby
+class CustomFormatter < ActionLogic::ActionBenchmark::DefaultFormatter
+
+  def log_coordinator(benchmark_result, execution_context_name)
+		benchmark_log.puts("The ActionCoordinator #{execution_context_name} took #{benchmark_result.real} to complete.")
+  end
+
+  def log_use_case(benchmark_result, execution_context_name)
+		benchmark_log.puts("The ActionUseCase #{execution_context_name} took #{benchmark_result.real} to complete.")
+  end
+
+  def log_task(benchmark_result, execution_context_name)
+		benchmark_log.puts("The ActionTask #{execution_context_name} took #{benchmark_result.real} to complete.")
+  end
+
+end
+```
+
+From the example above, you can see that a custom formatter is required to define three methods: `log_coordinator`, `log_use_case` and `log_task`. The `log_t cqcoordinator`
+method is called when a `ActionCoordinator` context is benchmarked. The `use_case` and `task` methods are invoked when `ActionUseCase` and `ActionTask`
+contexts are benchmarked, respectively.
+
+Each of the three log methods receives two input parameters: `benchmark_result` and `execution_context_name` where `benchmark_result` is a Ruby
+standard library `Benchmark` result object, and `execution_context_name` is the class name of the `ActionLogic` context.
+
+Once configured, you can verify that the formatter outputs to the specified log file by executing your `ActionLogic` contexts
+and verifying that the log file is written to with the correct format:
+
+```
+The ActionUseCase TestUseCase2 took 0.00011722202179953456 to complete.
+The ActionTask TestTask3 took 4.570698365569115e-05 to complete.
+...
+```
+
+### Custom Benchmark Handling
+
+By default, `ActionLogic` benchmarks execution contexts using Ruby's `Benchmark` module. If you are content with a `Benchmark` result object, then
+you do not need to specify a custom benchmark handler. However, if you wish to have maximum control, or you require something different than Ruby's
+`Benchmark` module, you can define a custom handler like so:
+
+```ruby
+class CustomHandler
+  def call
+    # custom logic
+    yield
+    # custom logic
+  end
+end
+```
+
+Your custom handler is free to define any custom logic, but you must yield during the body of the `call` method. This is what triggers the execution
+context and will allow your custom handler to measure the length of execution. If you do not yield, the relevant `ActionCoordinator`, `ActionUseCase`
+or `ActionTask` will not be executed and will result in no execution to benchmark.
+
+Additionally, you must register your custom handler with `ActionLogic` using `ActionLogic.configure`:
+
+```ruby
+ActionLogic.configure do |config|
+  config.benchmark = true
+  config.benchmark_log = File.open("benchmark.log", "w")
+  config.benchmark_handler = CustomHandler.new
+end
 ```
