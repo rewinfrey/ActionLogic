@@ -57,6 +57,16 @@
 <li><a href="#before-validations">Before Validations</a></li>
 <li><a href="#after-validations">After Validations</a></li>
 <li><a href="#around-validations">Around Validations</a></li>
+<li>
+<a href="#benchmarking">Benchmarking</a>
+
+<ul>
+<li><a href="#enable-benchmarking">Enable Benchmarking</a></li>
+<li><a href="#benchmark-logging">Benchmark Logging</a></li>
+<li><a href="#benchmark-log-formatting">Benchark Log Formatting</a></li>
+<li><a href="#custom-benchmark-handling">Custom Benchmark Handling</a></li>
+</ul>
+</li>
 </ul>
 
 <h3>
@@ -941,6 +951,114 @@ result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attrib
 result <span class="pl-k">=</span> <span class="pl-c1">ActionTaskExample</span>.execute(<span class="pl-c1">:example_attribute</span> =&gt; [<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>], <span class="pl-c1">:example_attribute2</span> =&gt; <span class="pl-c1">1</span>)
 
 result <span class="pl-c"># =&gt; #&lt;ActionLogic::ActionContext example_attribute=[1, 2, 3], example_attribute2=1, status=:success&gt;</span></pre></div>
+
+<h3>
+<a id="benchmarking" class="anchor" href="#benchmarking" aria-hidden="true"><span class="octicon octicon-link"></span></a>Benchmarking</h3>
+
+<p>At some point you may want to benchmark and profile the performance of your code. <code>ActionLogic</code> allows for benchmarking that
+range from simple defaults to highly customizable options depending on your use case and needs.</p>
+
+<h3>
+<a id="enable-benchmarking" class="anchor" href="#enable-benchmarking" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enable Benchmarking</h3>
+
+<p>Because benchmarking negatively impacts performance, we must explicitly tell <code>ActionLogic</code> that we want to benchmark (otherwise
+it defaults to ignore benchmarking). To do this, we configure <code>ActionLogic</code> using the <code>configure</code> method. With the provided
+<code>config</code> object, we explicitly enable benchmarking by setting <code>config.benchmark = true</code>:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">ActionLogic</span>.configure <span class="pl-k">do </span>|<span class="pl-smi">config</span>|
+  config.benchmark <span class="pl-k">=</span> <span class="pl-c1">true</span>
+<span class="pl-k">end</span></pre></div>
+
+<h3>
+<a id="benchmark-logging" class="anchor" href="#benchmark-logging" aria-hidden="true"><span class="octicon octicon-link"></span></a>Benchmark Logging</h3>
+
+<p>Additionally, <code>ActionLogic</code> writes a benchmark log to <code>$stdout</code> by default, or you can override this default configuration
+by specifying a log file. To do this, you configure <code>ActionLogic</code> to use a <code>File</code> object for logging benchmark results via the
+<code>ActionLogic.configure</code> method:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">ActionLogic</span>.configure <span class="pl-k">do </span>|<span class="pl-smi">config</span>|
+  config.benchmark <span class="pl-k">=</span> <span class="pl-c1">true</span>
+    config.benchmark_log <span class="pl-k">=</span> <span class="pl-c1">File</span>.open(<span class="pl-s"><span class="pl-pds">"</span>benchmark.log<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>w<span class="pl-pds">"</span></span>)
+<span class="pl-k">end</span></pre></div>
+
+<h3>
+<a id="benchmark-log-formatting" class="anchor" href="#benchmark-log-formatting" aria-hidden="true"><span class="octicon octicon-link"></span></a>Benchmark Log Formatting</h3>
+
+<p>By default, <code>ActionLogic</code> formats benchmark logs in the following format:</p>
+
+<pre><code>context:ValidateAroundPresenceTestUseCase user_time:0.000000 system_time:0.000000 total_time:0.000000 real_time:0.000135
+...
+</code></pre>
+
+<p>The default format is intended to be machine readable for easy parsing and is not intended to be used for human reading.
+However, if you wish to change the format of the log output, <code>ActionLogic</code> allows you to override the default formatter by
+allowing you to provide your own formatter:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">ActionLogic</span>.configure <span class="pl-k">do </span>|<span class="pl-smi">config</span>|
+  config.benchmark <span class="pl-k">=</span> <span class="pl-c1">true</span>
+    config.benchmark_log <span class="pl-k">=</span> <span class="pl-c1">File</span>.open(<span class="pl-s"><span class="pl-pds">"</span>benchmark.log<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>w<span class="pl-pds">"</span></span>)
+    config.benchmark_formatter <span class="pl-k">=</span> <span class="pl-c1">YourCustomFormatter</span>
+<span class="pl-k">end</span></pre></div>
+
+<p>Where <code>YourCustomFormatter</code> subclasses <code>ActionLogic::ActionBenchmark::DefaultFormatter</code>:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">CustomFormatter<span class="pl-e"> &lt; ActionLogic::ActionBenchmark::DefaultFormatter</span></span>
+
+  <span class="pl-k">def</span> <span class="pl-en">log_coordinator</span>(<span class="pl-smi">benchmark_result</span>, <span class="pl-smi">execution_context_name</span>)
+        benchmark_log.puts(<span class="pl-s"><span class="pl-pds">"</span>The ActionCoordinator <span class="pl-pse">#{</span><span class="pl-s1">execution_context_name</span><span class="pl-pse"><span class="pl-s1">}</span></span> took <span class="pl-pse">#{</span><span class="pl-s1">benchmark_result.real</span><span class="pl-pse"><span class="pl-s1">}</span></span> to complete.<span class="pl-pds">"</span></span>)
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">log_use_case</span>(<span class="pl-smi">benchmark_result</span>, <span class="pl-smi">execution_context_name</span>)
+        benchmark_log.puts(<span class="pl-s"><span class="pl-pds">"</span>The ActionUseCase <span class="pl-pse">#{</span><span class="pl-s1">execution_context_name</span><span class="pl-pse"><span class="pl-s1">}</span></span> took <span class="pl-pse">#{</span><span class="pl-s1">benchmark_result.real</span><span class="pl-pse"><span class="pl-s1">}</span></span> to complete.<span class="pl-pds">"</span></span>)
+  <span class="pl-k">end</span>
+
+  <span class="pl-k">def</span> <span class="pl-en">log_task</span>(<span class="pl-smi">benchmark_result</span>, <span class="pl-smi">execution_context_name</span>)
+        benchmark_log.puts(<span class="pl-s"><span class="pl-pds">"</span>The ActionTask <span class="pl-pse">#{</span><span class="pl-s1">execution_context_name</span><span class="pl-pse"><span class="pl-s1">}</span></span> took <span class="pl-pse">#{</span><span class="pl-s1">benchmark_result.real</span><span class="pl-pse"><span class="pl-s1">}</span></span> to complete.<span class="pl-pds">"</span></span>)
+  <span class="pl-k">end</span>
+
+<span class="pl-k">end</span></pre></div>
+
+<p>From the example above, you can see that a custom formatter is required to define three methods: <code>log_coordinator</code>, <code>log_use_case</code> and <code>log_task</code>. The <code>log_t cqcoordinator</code>
+method is called when a <code>ActionCoordinator</code> context is benchmarked. The <code>use_case</code> and <code>task</code> methods are invoked when <code>ActionUseCase</code> and <code>ActionTask</code>
+contexts are benchmarked, respectively.</p>
+
+<p>Each of the three log methods receives two input parameters: <code>benchmark_result</code> and <code>execution_context_name</code> where <code>benchmark_result</code> is a Ruby
+standard library <code>Benchmark</code> result object, and <code>execution_context_name</code> is the class name of the <code>ActionLogic</code> context.</p>
+
+<p>Once configured, you can verify that the formatter outputs to the specified log file by executing your <code>ActionLogic</code> contexts
+and verifying that the log file is written to with the correct format:</p>
+
+<pre><code>The ActionUseCase TestUseCase2 took 0.00011722202179953456 to complete.
+The ActionTask TestTask3 took 4.570698365569115e-05 to complete.
+...
+</code></pre>
+
+<h3>
+<a id="custom-benchmark-handling" class="anchor" href="#custom-benchmark-handling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Custom Benchmark Handling</h3>
+
+<p>By default, <code>ActionLogic</code> benchmarks execution contexts using Ruby's <code>Benchmark</code> module. If you are content with a <code>Benchmark</code> result object, then
+you do not need to specify a custom benchmark handler. However, if you wish to have maximum control, or you require something different than Ruby's
+<code>Benchmark</code> module, you can define a custom handler like so:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-k">class</span> <span class="pl-en">CustomHandler</span>
+  <span class="pl-k">def</span> <span class="pl-en">call</span>
+    <span class="pl-c"># custom logic</span>
+    <span class="pl-k">yield</span>
+    <span class="pl-c"># custom logic</span>
+  <span class="pl-k">end</span>
+<span class="pl-k">end</span></pre></div>
+
+<p>Your custom handler is free to define any custom logic, but you must yield during the body of the <code>call</code> method. This is what triggers the execution
+context and will allow your custom handler to measure the length of execution. If you do not yield, the relevant <code>ActionCoordinator</code>, <code>ActionUseCase</code>
+or <code>ActionTask</code> will not be executed and will result in no execution to benchmark.</p>
+
+<p>Additionally, you must register your custom handler with <code>ActionLogic</code> using <code>ActionLogic.configure</code>:</p>
+
+<div class="highlight highlight-source-ruby"><pre><span class="pl-c1">ActionLogic</span>.configure <span class="pl-k">do </span>|<span class="pl-smi">config</span>|
+  config.benchmark <span class="pl-k">=</span> <span class="pl-c1">true</span>
+  config.benchmark_log <span class="pl-k">=</span> <span class="pl-c1">File</span>.open(<span class="pl-s"><span class="pl-pds">"</span>benchmark.log<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>w<span class="pl-pds">"</span></span>)
+  config.benchmark_handler <span class="pl-k">=</span> <span class="pl-c1">CustomHandler</span>.<span class="pl-k">new</span>
+<span class="pl-k">end</span></pre></div>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/rewinfrey/ActionLogic">ActionLogic</a> is maintained by <a href="https://github.com/rewinfrey">rewinfrey</a>.</span>
