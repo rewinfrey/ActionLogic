@@ -2,7 +2,7 @@ require 'benchmark'
 
 module ActionLogic
   module ActionBenchmark
-    class DefaultBenchmarkBlock
+    class DefaultBenchmarkHandler
       def call
         Benchmark.measure { yield }
       end

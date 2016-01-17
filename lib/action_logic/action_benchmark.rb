@@ -9,7 +9,7 @@ module ActionLogic
 
       def benchmark!(execution_context, &block)
         context = nil
-        benchmark_result  = ActionLogic.benchmark_block.call { context = block.call }
+        benchmark_result  = ActionLogic.benchmark_handler.call { context = block.call }
         log!(benchmark_result, execution_context)
         context
       end
