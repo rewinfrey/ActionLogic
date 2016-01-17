@@ -35,7 +35,7 @@ module ActionLogic
       end
 
       def __private__type
-        :coordinator
+        "coordinator"
       end
     end
   end

@@ -6,7 +6,7 @@ require 'fixtures/custom_types'
 module ActionLogic
   describe ActionCoordinator do
     it "knows its type" do
-      expect(TestCoordinator1.__private__type).to eq(:coordinator)
+      expect(TestCoordinator1.__private__type).to eq("coordinator")
     end
 
     context "no failures and no halts" do

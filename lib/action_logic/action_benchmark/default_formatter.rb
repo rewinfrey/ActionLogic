@@ -19,9 +19,9 @@ module ActionLogic
                              benchmark_result.real)
       end
 
-      alias_method :coordinator, :format
-      alias_method :use_case, :format
-      alias_method :task, :format
+      alias_method :log_coordinator, :format
+      alias_method :log_use_case, :format
+      alias_method :log_task, :format
 
       private
       attr_reader :benchmark_log
