@@ -3,8 +3,8 @@
 [![Build Status](https://travis-ci.org/rewinfrey/ActionLogic.svg?branch=master)](https://travis-ci.org/rewinfrey/ActionLogic)
 [![Gem Version](https://badge.fury.io/rb/action_logic.svg)](https://badge.fury.io/rb/action_logic)
 [![Code Climate](https://codeclimate.com/github/rewinfrey/action_logic/badges/gpa.svg)](https://codeclimate.com/github/rewinfrey/action_logic)
-[![Coverage Status](https://coveralls.io/repos/rewinfrey/action_logic/badge.svg?branch=master&service=github)](https://coveralls.io/github/rewinfrey/action_logic?branch=master)
 [![Dependency Status](https://gemnasium.com/rewinfrey/action_logic.svg)](https://gemnasium.com/rewinfrey/action_logic)
+[![Coverage Status](https://coveralls.io/repos/rewinfrey/action_logic/badge.svg?branch=master&service=github)](https://coveralls.io/github/rewinfrey/action_logic?branch=master)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
 
 ### Introduction
