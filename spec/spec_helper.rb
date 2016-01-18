@@ -9,6 +9,8 @@ SimpleCov.start do
   add_filter 'spec/fixtures'
 end
 
+Coveralls.wear!
+
 require 'action_logic'
 
 class CustomFormatter < ActionLogic::ActionBenchmark::DefaultFormatter
