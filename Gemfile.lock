@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    action_logic (0.2.5)
+    action_logic (0.2.6)
 
 GEM
   remote: https://rubygems.org/
@@ -27,6 +27,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    rake (10.4.2)
     rest-client (1.8.0)
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 3.0)
@@ -65,6 +66,7 @@ DEPENDENCIES
   action_logic!
   coveralls (~> 0.8.3)
   pry (~> 0.10)
+  rake (~> 10)
   rspec (~> 3.3)
   simplecov (~> 0.10.0)
 
