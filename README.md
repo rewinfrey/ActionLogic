@@ -35,7 +35,7 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 * [Benchmarking](#benchmarking)
 	* [Enable Benchmarking](#enable-benchmarking)
 	* [Benchmark Logging](#benchmark-logging)
-	* [Benchark Log Formatting](#benchmark-log-formatting)
+	* [Benchmark Log Formatting](#benchmark-log-formatting)
 	* [Custom Benchmark Handling](#custom-benchmark-handling)
 
 ### Backstory
