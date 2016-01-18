@@ -1065,4 +1065,4 @@ Don't forget to bundle:
 ### Contributing
 
 Interested in contributing to `ActionLogic`? If so that is awesome! <3
-Please see the [CONTRIBUTING](https://github.com/rewinfrey/ActionLogic/blob/master/CONTRIBUTING.md) for details.
+Please see the [contributing doc](https://github.com/rewinfrey/ActionLogic/blob/master/CONTRIBUTING.md) for details.
