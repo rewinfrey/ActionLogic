@@ -39,6 +39,8 @@ Why another business logic abstraction gem? `ActionLogic` provides teams of vari
 	* [Benchmark Logging](#benchmark-logging)
 	* [Benchmark Log Formatting](#benchmark-log-formatting)
 	* [Custom Benchmark Handling](#custom-benchmark-handling)
+* [Installation](#installation)
+* [Contributing](#contributing)
 
 ### Backstory
 
@@ -1049,3 +1051,18 @@ ActionLogic.configure do |config|
   config.benchmark_handler = CustomHandler.new
 end
 ```
+
+### Installation
+
+Add `ActionLogic` to your project's Gemfile:
+
+`gem 'action_logic'`
+
+Don't forget to bundle:
+
+`$ bundle`
+
+### Contributing
+
+Interested in contributing to `ActionLogic`? If so that is awesome! <3
+Please see the [CONTRIBUTING](https://github.com/rewinfrey/ActionLogic/blob/master/CONTRIBUTING.md) for details.
