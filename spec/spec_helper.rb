@@ -1,11 +1,13 @@
 require 'simplecov'
-SimpleCov.start
-
 require 'coveralls'
-Coveralls.wear!
 
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 $LOAD_PATH << File.join(File.dirname(__FILE__))
+
+SimpleCov.formatter = Coveralls::SimpleCov::Formatter
+SimpleCov.start do
+  add_filter 'spec/fixtures'
+end
 
 require 'action_logic'
 
