@@ -7,7 +7,7 @@ SimpleCov.start do
   add_filter 'spec/fixtures'
 end
 
-if ENV['CI']=='true'
+if ENV['CI']
   require 'codecov'
   SimpleCov.formatter = SimpleCov::Formatter::Codecov
 end
