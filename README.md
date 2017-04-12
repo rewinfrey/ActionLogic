@@ -961,7 +961,7 @@ by specifying a log file. To do this, you configure `ActionLogic` to use a `File
 ```ruby
 ActionLogic.configure do |config|
   config.benchmark = true
-	config.benchmark_log = File.open("benchmark.log", "w")
+  config.benchmark_log = File.open("benchmark.log", "w")
 end
 ```
 
@@ -981,8 +981,8 @@ allowing you to provide your own formatter:
 ```ruby
 ActionLogic.configure do |config|
   config.benchmark = true
-	config.benchmark_log = File.open("benchmark.log", "w")
-	config.benchmark_formatter = YourCustomFormatter
+  config.benchmark_log = File.open("benchmark.log", "w")
+  config.benchmark_formatter = YourCustomFormatter
 end
 ```
 
@@ -992,15 +992,15 @@ Where `YourCustomFormatter` subclasses `ActionLogic::ActionBenchmark::DefaultFor
 class CustomFormatter < ActionLogic::ActionBenchmark::DefaultFormatter
 
   def log_coordinator(benchmark_result, execution_context_name)
-		benchmark_log.puts("The ActionCoordinator #{execution_context_name} took #{benchmark_result.real} to complete.")
+    benchmark_log.puts("The ActionCoordinator #{execution_context_name} took #{benchmark_result.real} to complete.")
   end
 
   def log_use_case(benchmark_result, execution_context_name)
-		benchmark_log.puts("The ActionUseCase #{execution_context_name} took #{benchmark_result.real} to complete.")
+    benchmark_log.puts("The ActionUseCase #{execution_context_name} took #{benchmark_result.real} to complete.")
   end
 
   def log_task(benchmark_result, execution_context_name)
-		benchmark_log.puts("The ActionTask #{execution_context_name} took #{benchmark_result.real} to complete.")
+    benchmark_log.puts("The ActionTask #{execution_context_name} took #{benchmark_result.real} to complete.")
   end
 
 end
