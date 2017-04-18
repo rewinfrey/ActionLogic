@@ -21,18 +21,18 @@ module ActionLogic
     end
 
     describe "around validations" do
-      describe "required attributes and type validation" do
+      describe "required attributes and type validation with bang" do
         it "does not raise error if context has required keys and values are of the correct type" do
-          expect { ValidateAroundTestTask.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
+          expect { ValidateAroundTestTaskWithBang.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
         end
 
         it "raises error if context is missing required keys" do
-          expect { ValidateAroundTestTask.execute() }.to\
+          expect { ValidateAroundTestTaskWithBang.execute() }.to\
             raise_error(ActionLogic::MissingAttributeError)
         end
 
         it "raises error if context has required keys but values are not of correct type" do
-          expect { ValidateAroundTestTask.execute(Constants::INVALID_ATTRIBUTES) }.to\
+          expect { ValidateAroundTestTaskWithBang.execute(Constants::INVALID_ATTRIBUTES) }.to\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end

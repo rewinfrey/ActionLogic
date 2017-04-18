@@ -10,6 +10,15 @@ class SimpleTestTask
   end
 end
 
+class ValidateAroundTestTaskWithBang
+  include ActionLogic::ActionTask
+
+  validates_around! Constants::ALL_VALIDATIONS
+
+  def call
+  end
+end
+
 class ValidateAroundTestTask
   include ActionLogic::ActionTask
 

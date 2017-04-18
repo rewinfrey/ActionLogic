@@ -17,6 +17,10 @@ module ActionLogic
         @validates_around = args
       end
 
+      def validates_around!(args)
+        @validates_around = args
+      end
+
       def get_validates_before
         @validates_before ||= {}
       end
