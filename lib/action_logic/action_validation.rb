@@ -6,31 +6,31 @@ module ActionLogic
   module ActionValidation
     module ClassMethods
       def validates_before(args)
-        @validates_before = args
+        @validates_before = args.merge(raise_action_logic_exception: true)
       end
 
       def validates_after(args)
-        @validates_after = args
-      end
-
-      def validates_around(args)
-        @validates_around = args
+        @validates_after = args.merge(raise_action_logic_exception: true)
       end
 
       def validates_around!(args)
-        @validates_around = args
+        @validates_around = args.merge(raise_action_logic_exception: true)
+      end
+
+      def validates_around(args)
+        @validates_around = args.merge(raise_action_logic_exception: true)
       end
 
       def get_validates_before
-        @validates_before ||= {}
+        @validates_before ||= { raise_action_logic_exception: true }
       end
 
       def get_validates_after
-        @validates_after ||= {}
+        @validates_after ||= { raise_action_logic_exception: true }
       end
 
       def get_validates_around
-        @validates_around ||= {}
+        @validates_around ||= { raise_action_logic_exception: true }
       end
     end
 

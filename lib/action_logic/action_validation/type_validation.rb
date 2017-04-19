@@ -6,9 +6,11 @@ module ActionLogic
     class TypeValidation < BaseValidation
 
       def self.validate!(validation_rules, context)
-        return unless validation_rules.values.find { |expected_validation| expected_validation[:type] }
+        tmp_rules = validation_rules.clone
+        raise_exception = tmp_rules.delete(:raise_action_logic_exception)
+        return unless tmp_rules.values.find { |expected_validation| expected_validation[:type] }
 
-        type_errors = validation_rules.reduce([]) do |collection, (expected_attribute, expected_validation)|
+        type_errors = tmp_rules.reduce([]) do |collection, (expected_attribute, expected_validation)|
           next unless expected_validation[:type]
 
           if context.to_h[expected_attribute].class != expected_validation[:type]
@@ -17,7 +19,9 @@ module ActionLogic
           collection
         end
 
-        raise ActionLogic::AttributeTypeError.new(error_message_format(type_errors.join(", "))) if type_errors.any?
+        if raise_exception
+          raise ActionLogic::AttributeTypeError.new(error_message_format(type_errors.join(", "))) if type_errors.any?
+        end
       end
     end
   end

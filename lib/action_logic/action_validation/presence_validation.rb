@@ -6,13 +6,17 @@ module ActionLogic
     class PresenceValidation < BaseValidation
 
       def self.validate!(validation_rules, context)
-        return unless validation_rules.values.find { |expected_validation| expected_validation[:presence] }
-        errors = presence_errors(validation_rules, context)
-        raise ActionLogic::PresenceError.new(errors) if errors.any?
+        tmp_rules = validation_rules.clone
+        raise_exception = tmp_rules.delete(:raise_action_logic_exception)
+        return unless tmp_rules.values.find { |expected_validation| expected_validation[:presence] }
+        errors = presence_errors(tmp_rules, context)
+        if raise_exception
+          raise ActionLogic::PresenceError.new(errors) if errors.any?
+        end
       end
 
-      def self.presence_errors(validation_rules, context)
-        validation_rules.reduce([]) do |error_collection, (expected_attribute, expected_validation)|
+      def self.presence_errors(tmp_rules, context)
+        tmp_rules.reduce([]) do |error_collection, (expected_attribute, expected_validation)|
           next unless expected_validation[:presence]
           error_collection << error_message(expected_attribute, expected_validation, context)
           error_collection
