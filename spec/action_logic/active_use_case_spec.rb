@@ -48,13 +48,13 @@ module ActionLogic
           expect { ValidateAroundTestUseCase.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
         end
 
-        it "raises error if context is missing required keys" do
-          expect { ValidateAroundTestUseCase.execute() }.to\
+        it "doesn't raise error if context is missing required keys" do
+          expect { ValidateAroundTestUseCase.execute() }.to_not\
             raise_error(ActionLogic::MissingAttributeError)
         end
 
-        it "raises error if context has required keys but values are not of correct type" do
-          expect { ValidateAroundTestUseCase.execute(Constants::INVALID_ATTRIBUTES) }.to\
+        it "doesn't raise error if context has required keys but values are not of correct type" do
+          expect { ValidateAroundTestUseCase.execute(Constants::INVALID_ATTRIBUTES) }.to_not\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
@@ -64,8 +64,8 @@ module ActionLogic
           expect { ValidateAroundCustomTypeTestUseCase.execute(:custom_type => CustomType1.new) }.to_not raise_error
         end
 
-        it "raises error if context has custom type attribute but value is not correct custom type" do
-          expect { ValidateAroundCustomTypeTestUseCase.execute(:custom_type => CustomType2.new) }.to\
+        it "doesn't raise error if context has custom type attribute but value is not correct custom type" do
+          expect { ValidateAroundCustomTypeTestUseCase.execute(:custom_type => CustomType2.new) }.to_not\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
@@ -75,8 +75,8 @@ module ActionLogic
           expect { ValidateAroundPresenceTestUseCase.execute(:integer_test => 1) }.to_not raise_error
         end
 
-        it "raises error if context has required key but value is not defined when validation requires presence" do
-          expect { ValidateAroundPresenceTestUseCase.execute(:integer_test => nil) }.to\
+        it "doesn't raise error if context has required key but value is not defined when validation requires presence" do
+          expect { ValidateAroundPresenceTestUseCase.execute(:integer_test => nil) }.to_not\
             raise_error(ActionLogic::PresenceError)
         end
       end
@@ -86,8 +86,8 @@ module ActionLogic
           expect { ValidateAroundCustomPresenceTestUseCase.execute(:array_test => [1]) }.to_not raise_error
         end
 
-        it "raises error if custom presence validation is not satisfied" do
-          expect { ValidateAroundCustomPresenceTestUseCase.execute(:array_test => []) }.to\
+        it "doesn't raise error when custom presence validation is not satisfied" do
+          expect { ValidateAroundCustomPresenceTestUseCase.execute(:array_test => []) }.to_not\
             raise_error(ActionLogic::PresenceError)
         end
 

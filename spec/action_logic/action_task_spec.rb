@@ -21,6 +21,24 @@ module ActionLogic
     end
 
     describe "around validations" do
+      describe "required attributes and type validation" do
+        it "does not have errors if context has required keys and values are of the correct type" do
+          result = ValidateAroundTestTask.execute(Constants::VALID_ATTRIBUTES)
+          expect(result.message).to be_nil
+          expect(result.success?).to be_truthy
+        end
+
+        it "does not raise error if context is missing required keys" do
+          expect { ValidateAroundTestTask.execute() }.to_not\
+            raise_error(ActionLogic::MissingAttributeError)
+        end
+
+        it "raises error if context has required keys but values are not of correct type" do
+          expect { ValidateAroundTestTask.execute(Constants::INVALID_ATTRIBUTES) }.to_not\
+            raise_error(ActionLogic::AttributeTypeError)
+        end
+      end
+
       describe "required attributes and type validation with bang" do
         it "does not raise error if context has required keys and values are of the correct type" do
           expect { ValidateAroundTestTaskWithBang.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
@@ -42,8 +60,8 @@ module ActionLogic
           expect { ValidateAroundCustomTypeTestTask.execute(:custom_type => CustomType1.new) }.to_not raise_error
         end
 
-        it "raises error if context has custom type attribute but value is not correct custom type" do
-          expect { ValidateAroundCustomTypeTestTask.execute(:custom_type => CustomType2.new) }.to\
+        it "doesn't raise error if context has custom type attribute but value is not correct custom type" do
+          expect { ValidateAroundCustomTypeTestTask.execute(:custom_type => CustomType2.new) }.to_not\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
@@ -53,8 +71,8 @@ module ActionLogic
           expect { ValidateAroundPresenceTestTask.execute(:integer_test => 1) }.to_not raise_error
         end
 
-        it "raises error if context has required key but value is not defined when validation requires presence" do
-          expect { ValidateAroundPresenceTestTask.execute(:integer_test => nil) }.to\
+        it "doesn't raise error if context has required key but value is not defined when validation requires presence" do
+          expect { ValidateAroundPresenceTestTask.execute(:integer_test => nil) }.to_not\
             raise_error(ActionLogic::PresenceError)
         end
       end
@@ -64,8 +82,8 @@ module ActionLogic
           expect { ValidateAroundCustomPresenceTestTask.execute(:array_test => [1]) }.to_not raise_error
         end
 
-        it "raises error if custom presence validation is not satisfied" do
-          expect { ValidateAroundCustomPresenceTestTask.execute(:array_test => []) }.to\
+        it "doesn't raise error if custom presence validation is not satisfied" do
+          expect { ValidateAroundCustomPresenceTestTask.execute(:array_test => []) }.to_not\
             raise_error(ActionLogic::PresenceError)
         end
 

@@ -18,7 +18,7 @@ module ActionLogic
       end
 
       def validates_around(args)
-        @validates_around = args.merge(raise_action_logic_exception: true)
+        @validates_around = args.merge(raise_action_logic_exception: false)
       end
 
       def get_validates_before
