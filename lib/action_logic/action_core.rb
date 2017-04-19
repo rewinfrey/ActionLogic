@@ -28,8 +28,8 @@ module ActionLogic
         return execution_context.context if execution_context.break?
 
         execution_context.set_validation_rules
-        execution_context.validations!(:before)
-        execution_context.validations!(:around)
+        execution_context.validations!(:before!)
+        execution_context.validations!(:around!)
 
         begin
           block.call(execution_context)
@@ -41,8 +41,8 @@ module ActionLogic
           end
         end
 
-        execution_context.validations!(:after)
-        execution_context.validations!(:around)
+        execution_context.validations!(:after!)
+        execution_context.validations!(:around!)
 
         execution_context.context
       end

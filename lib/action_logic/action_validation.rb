@@ -43,9 +43,9 @@ module ActionLogic
 
     def validations!(validation_order)
       case validation_order
-      when :before then validations.each { |validation| validate!(validation, @before_validation_rules) }
-      when :after  then validations.each { |validation| validate!(validation, @after_validation_rules) }
-      when :around then validations.each { |validation| validate!(validation, @around_validation_rules) }
+      when :before! then validations.each { |validation| validate!(validation, @before_validation_rules) }
+      when :after!  then validations.each { |validation| validate!(validation, @after_validation_rules) }
+      when :around! then validations.each { |validation| validate!(validation, @around_validation_rules) }
       end
     end
 
