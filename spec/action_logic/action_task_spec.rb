@@ -66,6 +66,17 @@ module ActionLogic
         end
       end
 
+      describe "custom types with bang" do
+        it "allows validation against custom defined types" do
+          expect { ValidateAroundCustomTypeTestTaskWithBang.execute(:custom_type => CustomType1.new) }.to_not raise_error
+        end
+
+        it "raises error if context has custom type attribute but value is not correct custom type" do
+          expect { ValidateAroundCustomTypeTestTaskWithBang.execute(:custom_type => CustomType2.new) }.to\
+            raise_error(ActionLogic::AttributeTypeError)
+        end
+      end
+
       describe "presence" do
         it "validates presence if presence is specified" do
           expect { ValidateAroundPresenceTestTask.execute(:integer_test => 1) }.to_not raise_error

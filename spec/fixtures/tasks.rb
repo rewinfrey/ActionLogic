@@ -28,6 +28,15 @@ class ValidateAroundTestTask
   end
 end
 
+class ValidateAroundCustomTypeTestTaskWithBang
+  include ActionLogic::ActionTask
+
+  validates_around! :custom_type => { :type => CustomType1, :presence => true }
+
+  def call
+  end
+end
+
 class ValidateAroundCustomTypeTestTask
   include ActionLogic::ActionTask
 
