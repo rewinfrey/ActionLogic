@@ -12,6 +12,16 @@ module ActionLogic
 
         raise ActionLogic::MissingAttributeError.new(error_message_format(missing_attributes.join(", ") + " attributes are missing")) if missing_attributes.any?
       end
+
+      def self.validate(validation_rules, context)
+        existing_attributes = context.to_h.keys
+        expected_attributes = validation_rules.keys || []
+        missing_attributes  = expected_attributes - existing_attributes
+
+        missing_attributes.each do |attribute|
+          context.errors.messages[attribute] = attribute.to_s + " is missing"
+        end
+      end
     end
   end
 end
