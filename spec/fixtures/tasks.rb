@@ -55,6 +55,15 @@ class ValidateAroundUnrecognizablePresenceTestTask
   end
 end
 
+class ValidateAroundPresenceTestTaskWithBang
+  include ActionLogic::ActionTask
+
+  validates_around! :integer_test => { :presence => true }
+
+  def call
+  end
+end
+
 class ValidateAroundPresenceTestTask
   include ActionLogic::ActionTask
 
