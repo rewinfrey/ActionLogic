@@ -13,7 +13,7 @@ end
 class ValidateAroundTestTask
   include ActionLogic::ActionTask
 
-  validates_around Constants::ALL_VALIDATIONS
+  validates_around! Constants::ALL_VALIDATIONS
 
   def call
   end
@@ -22,7 +22,7 @@ end
 class ValidateAroundCustomTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_around :custom_type => { :type => CustomType1, :presence => true }
+  validates_around! :custom_type => { :type => CustomType1, :presence => true }
 
   def call
   end
@@ -31,7 +31,7 @@ end
 class ValidateAroundUnrecognizablePresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_around :integer_test => { :presence => :true }
+  validates_around! :integer_test => { :presence => :true }
 
   def call
   end
@@ -40,7 +40,7 @@ end
 class ValidateAroundPresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_around :integer_test => { :presence => true }
+  validates_around! :integer_test => { :presence => true }
 
   def call
   end
@@ -49,7 +49,7 @@ end
 class ValidateAroundCustomPresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_around :array_test => { :presence => ->(array_test) { array_test.any? } }
+  validates_around! :array_test => { :presence => ->(array_test) { array_test.any? } }
 
   def call
   end
@@ -62,7 +62,7 @@ end
 class ValidateBeforeTestTask
   include ActionLogic::ActionTask
 
-  validates_before Constants::ALL_VALIDATIONS
+  validates_before! Constants::ALL_VALIDATIONS
 
   def call
   end
@@ -71,7 +71,7 @@ end
 class ValidateBeforeCustomTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_before :custom_type => { :type => CustomType1, :presence => true }
+  validates_before! :custom_type => { :type => CustomType1, :presence => true }
 
   def call
   end
@@ -80,7 +80,7 @@ end
 class ValidateBeforeUnrecognizablePresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_before :integer_test => { :presence => :true }
+  validates_before! :integer_test => { :presence => :true }
 
   def call
   end
@@ -89,7 +89,7 @@ end
 class ValidateBeforePresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_before :integer_test => { :presence => true }
+  validates_before! :integer_test => { :presence => true }
 
   def call
   end
@@ -98,7 +98,7 @@ end
 class ValidateBeforeCustomPresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_before :array_test => { :presence => ->(array_test) { array_test.any? } }
+  validates_before! :array_test => { :presence => ->(array_test) { array_test.any? } }
 
   def call
   end
@@ -111,7 +111,7 @@ end
 class ValidateAfterTestTask
   include ActionLogic::ActionTask
 
-  validates_after Constants::ALL_VALIDATIONS
+  validates_after! Constants::ALL_VALIDATIONS
 
   def call
     context.integer_test = 1
@@ -128,7 +128,7 @@ end
 class ValidateAfterMissingAttributesTestTask
   include ActionLogic::ActionTask
 
-  validates_after Constants::ALL_VALIDATIONS
+  validates_after! Constants::ALL_VALIDATIONS
 
   def call
   end
@@ -137,7 +137,7 @@ end
 class ValidateAfterInvalidTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_after Constants::ALL_VALIDATIONS
+  validates_after! Constants::ALL_VALIDATIONS
 
   def call
     context.integer_test = nil
@@ -154,7 +154,7 @@ end
 class ValidateAfterCustomTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_after :custom_type => { :type => CustomType1, :presence => true }
+  validates_after! :custom_type => { :type => CustomType1, :presence => true }
 
   def call
     context.custom_type = CustomType1.new
@@ -164,7 +164,7 @@ end
 class ValidateAfterInvalidCustomTypeTestTask
   include ActionLogic::ActionTask
 
-  validates_after :custom_type => { :type => CustomType2, :presence => true }
+  validates_after! :custom_type => { :type => CustomType2, :presence => true }
 
   def call
     context.custom_type = CustomType1.new
@@ -174,7 +174,7 @@ end
 class ValidateAfterPresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_after :integer_test => { :presence => true }
+  validates_after! :integer_test => { :presence => true }
 
   def call
     context.integer_test = 1
@@ -184,7 +184,7 @@ end
 class ValidateAfterInvalidPresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_after :integer_test => { :presence => true }
+  validates_after! :integer_test => { :presence => true }
 
   def call
     context.integer_test = nil
@@ -194,7 +194,7 @@ end
 class ValidateAfterCustomPresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_after :array_test => { :presence => ->(array_test) { array_test.any? } }
+  validates_after! :array_test => { :presence => ->(array_test) { array_test.any? } }
 
   def call
     context.array_test = [1]
@@ -204,7 +204,7 @@ end
 class ValidateAfterInvalidCustomPresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_after :array_test => { :presence => ->(array_test) { array_test.any? } }
+  validates_after! :array_test => { :presence => ->(array_test) { array_test.any? } }
 
   def call
     context.array_test = []
@@ -214,7 +214,7 @@ end
 class ValidateAfterUnrecognizablePresenceTestTask
   include ActionLogic::ActionTask
 
-  validates_after :integer_test => { :presence => :true }
+  validates_after! :integer_test => { :presence => :true }
 
   def call
     context.integer_test = 1
@@ -236,7 +236,7 @@ end
 class ErrorHandlerInvalidAttributesBeforeTestTask
   include ActionLogic::ActionTask
 
-  validates_before Constants::ALL_VALIDATIONS
+  validates_before! Constants::ALL_VALIDATIONS
 
   def call
     raise
@@ -250,7 +250,7 @@ end
 class ErrorHandlerInvalidAttributesAfterTestTask
   include ActionLogic::ActionTask
 
-  validates_after Constants::ALL_VALIDATIONS
+  validates_after! Constants::ALL_VALIDATIONS
 
   def call
     raise

@@ -49,10 +49,38 @@ class NoTaskTestUseCase
   end
 end
 
+class ValidateAroundTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! Constants::ALL_VALIDATIONS
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAroundTestUseCase
   include ActionLogic::ActionUseCase
 
   validates_around Constants::ALL_VALIDATIONS
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundCustomTypeTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :custom_type => { :type => CustomType1, :presence => true }
 
   def call
   end
@@ -77,10 +105,38 @@ class ValidateAroundCustomTypeTestUseCase
   end
 end
 
+class ValidateAroundUnrecognizablePresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :integer_test => { :presence => :true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAroundUnrecognizablePresenceTestUseCase
   include ActionLogic::ActionUseCase
 
   validates_around :integer_test => { :presence => :true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundPresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :integer_test => { :presence => true }
 
   def call
   end
@@ -105,10 +161,38 @@ class ValidateAroundPresenceTestUseCase
   end
 end
 
+class ValidateAroundCustomPresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :array_test => { :presence => ->(array_test) { array_test.any? } }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAroundCustomPresenceTestUseCase
   include ActionLogic::ActionUseCase
 
   validates_around :array_test => { :presence => ->(array_test) { array_test.any? } }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateBeforeTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_before! Constants::ALL_VALIDATIONS
 
   def call
   end
@@ -136,7 +220,21 @@ end
 class ValidateBeforePresenceTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_before Constants::PRESENCE_VALIDATION
+  validates_before! Constants::PRESENCE_VALIDATION
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateBeforeCustomPresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_before! Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call
   end
@@ -161,10 +259,38 @@ class ValidateBeforeCustomPresenceTestUseCase
   end
 end
 
+class ValidateBeforeCustomTypeTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_before! Constants::CUSTOM_TYPE_VALIDATION1
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateBeforeCustomTypeTestUseCase
   include ActionLogic::ActionUseCase
 
   validates_before Constants::CUSTOM_TYPE_VALIDATION1
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateBeforeUnrecognizablePresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_before! :integer_test => { :presence => :true }
 
   def call
   end
@@ -189,6 +315,27 @@ class ValidateBeforeUnrecognizablePresenceTestUseCase
   end
 end
 
+class ValidateAfterTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_after! Constants::ALL_VALIDATIONS
+
+  def call
+    context.integer_test = 1
+    context.float_test   = 1.0
+    context.string_test  = "string"
+    context.bool_test    = true
+    context.hash_test    = {}
+    context.array_test   = []
+    context.symbol_test  = :symbol
+    context.nil_test     = nil
+  end
+
+  def tasks
+    [UseCaseTestTask3]
+  end
+end
+
 class ValidateAfterTestUseCase
   include ActionLogic::ActionUseCase
 
@@ -210,12 +357,48 @@ class ValidateAfterTestUseCase
   end
 end
 
+class ValidateAfterMissingAttributesTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_after! Constants::ALL_VALIDATIONS
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAfterMissingAttributesTestUseCase
   include ActionLogic::ActionUseCase
 
   validates_after Constants::ALL_VALIDATIONS
 
   def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAfterInvalidTypeTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_after! Constants::ALL_VALIDATIONS
+
+  def call
+    context.integer_test = nil
+    context.float_test   = nil
+    context.string_test  = nil
+    context.bool_test    = nil
+    context.hash_test    = nil
+    context.array_test   = nil
+    context.symbol_test  = nil
+    context.nil_test     = 1
   end
 
   def tasks
@@ -249,7 +432,7 @@ end
 class ValidateAfterCustomTypeTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_after Constants::CUSTOM_TYPE_VALIDATION1
+  validates_after! Constants::CUSTOM_TYPE_VALIDATION1
 
   def call
     context.custom_type = CustomType1.new
@@ -264,7 +447,7 @@ end
 class ValidateAfterInvalidCustomTypeTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_after Constants::CUSTOM_TYPE_VALIDATION2
+  validates_after! Constants::CUSTOM_TYPE_VALIDATION2
 
   def call
     context.custom_type = CustomType1.new
@@ -279,7 +462,7 @@ end
 class ValidateAfterPresenceTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_after Constants::PRESENCE_VALIDATION
+  validates_after! Constants::PRESENCE_VALIDATION
 
   def call
     context.integer_test = 1
@@ -293,7 +476,7 @@ end
 class ValidateAfterInvalidPresenceTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_after Constants::PRESENCE_VALIDATION
+  validates_after! Constants::PRESENCE_VALIDATION
 
   def call
     context.integer_test = nil
@@ -308,7 +491,7 @@ end
 class ValidateAfterCustomPresenceTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_after Constants::CUSTOM_PRESENCE_VALIDATION
+  validates_after! Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call
     context.array_test = [1]
@@ -323,7 +506,7 @@ end
 class ValidateAfterInvalidCustomPresenceTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_after Constants::CUSTOM_PRESENCE_VALIDATION
+  validates_after! Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call
     context.array_test = []
@@ -338,7 +521,7 @@ end
 class ValidateAfterUnrecognizablePresenceTestUseCase
   include ActionLogic::ActionUseCase
 
-  validates_after :integer_test => { :presence => :true }
+  validates_after! :integer_test => { :presence => :true }
 
   def call
     context.integer_test = 1

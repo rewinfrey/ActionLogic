@@ -61,7 +61,7 @@ end
 class ValidateBeforeTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_before Constants::ALL_VALIDATIONS
+  validates_before! Constants::ALL_VALIDATIONS
 
   def call
   end
@@ -80,7 +80,7 @@ end
 class ValidateBeforeCustomTypeTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_before Constants::CUSTOM_TYPE_VALIDATION1
+  validates_before! Constants::CUSTOM_TYPE_VALIDATION1
 
   def call
   end
@@ -99,7 +99,7 @@ end
 class ValidateBeforePresenceTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_before Constants::PRESENCE_VALIDATION
+  validates_before! Constants::PRESENCE_VALIDATION
 
   def call
   end
@@ -118,7 +118,7 @@ end
 class ValidateBeforeCustomPresenceTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_before Constants::CUSTOM_PRESENCE_VALIDATION
+  validates_before! Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call
   end
@@ -137,7 +137,7 @@ end
 class ValidateBeforeUnrecognizablePresenceTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_before :integer_test => { :presence => :true }
+  validates_before! :integer_test => { :presence => :true }
 
   def call
   end
@@ -156,7 +156,7 @@ end
 class ValidateAfterTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::ALL_VALIDATIONS
+  validates_after! Constants::ALL_VALIDATIONS
 
   def call
     context.integer_test = 1
@@ -183,7 +183,7 @@ end
 class ValidateAfterMissingAttributesTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::ALL_VALIDATIONS
+  validates_after! Constants::ALL_VALIDATIONS
 
   def call
   end
@@ -202,7 +202,7 @@ end
 class ValidateAfterInvalidTypeTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::ALL_VALIDATIONS
+  validates_after! Constants::ALL_VALIDATIONS
 
   def call
     context.integer_test = nil
@@ -229,7 +229,7 @@ end
 class ValidateAfterCustomTypeTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::CUSTOM_TYPE_VALIDATION1
+  validates_after! Constants::CUSTOM_TYPE_VALIDATION1
 
   def call
     context.custom_type = CustomType1.new
@@ -249,7 +249,7 @@ end
 class ValidateAfterInvalidCustomTypeTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::CUSTOM_TYPE_VALIDATION2
+  validates_after! Constants::CUSTOM_TYPE_VALIDATION2
 
   def call
     context.custom_type = CustomType1.new
@@ -269,7 +269,7 @@ end
 class ValidateAfterPresenceTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::PRESENCE_VALIDATION
+  validates_after! Constants::PRESENCE_VALIDATION
 
   def call
     context.integer_test = 1
@@ -289,7 +289,7 @@ end
 class ValidateAfterInvalidPresenceTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::PRESENCE_VALIDATION
+  validates_after! Constants::PRESENCE_VALIDATION
 
   def call
     context.integer_test = nil
@@ -309,7 +309,7 @@ end
 class ValidateAfterCustomPresenceTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::CUSTOM_PRESENCE_VALIDATION
+  validates_after! Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call
     context.array_test = [1]
@@ -329,7 +329,7 @@ end
 class ValidateAfterInvalidCustomPresenceTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after Constants::CUSTOM_PRESENCE_VALIDATION
+  validates_after! Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call
     context.array_test = []
@@ -349,7 +349,7 @@ end
 class ValidateAfterUnrecognizablePresenceTestCoordinator
   include ActionLogic::ActionCoordinator
 
-  validates_after :integer_test => { :presence => :true }
+  validates_after! :integer_test => { :presence => :true }
 
   def call
     context.integer_test = 1
