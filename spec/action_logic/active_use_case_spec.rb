@@ -59,6 +59,22 @@ module ActionLogic
         end
       end
 
+      describe "required attributes and type validation with bang" do
+        it "does not raise error if context has required keys and values are of the correct type" do
+          expect { ValidateAroundTestUseCaseWithBang.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
+        end
+
+        it "raises error if context is missing required keys" do
+          expect { ValidateAroundTestUseCaseWithBang.execute() }.to\
+            raise_error(ActionLogic::MissingAttributeError)
+        end
+
+        it "raises error if context has required keys but values are not of correct type" do
+          expect { ValidateAroundTestUseCaseWithBang.execute(Constants::INVALID_ATTRIBUTES) }.to\
+            raise_error(ActionLogic::AttributeTypeError)
+        end
+      end
+
       describe "custom types" do
         it "allows validation against custom defined types" do
           expect { ValidateAroundCustomTypeTestUseCase.execute(:custom_type => CustomType1.new) }.to_not raise_error

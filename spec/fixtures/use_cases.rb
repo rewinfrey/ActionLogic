@@ -63,6 +63,20 @@ class ValidateAroundTestUseCase
   end
 end
 
+class ValidateAroundTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! Constants::ALL_VALIDATIONS
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAroundCustomTypeTestUseCase
   include ActionLogic::ActionUseCase
 
