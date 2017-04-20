@@ -63,10 +63,52 @@ class ValidateAroundTestUseCase
   end
 end
 
+class ValidateAroundTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! Constants::ALL_VALIDATIONS
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAroundCustomTypeTestUseCase
   include ActionLogic::ActionUseCase
 
   validates_around :custom_type => { :type => CustomType1, :presence => true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundCustomTypeTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :custom_type => { :type => CustomType1, :presence => true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundUnrecognizablePresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :integer_test => { :presence => :true }
 
   def call
   end
@@ -91,10 +133,38 @@ class ValidateAroundUnrecognizablePresenceTestUseCase
   end
 end
 
+class ValidateAroundPresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :integer_test => { :presence => true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAroundPresenceTestUseCase
   include ActionLogic::ActionUseCase
 
   validates_around :integer_test => { :presence => true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateAroundCustomPresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :array_test => { :presence => ->(array_test) { array_test.any? } }
 
   def call
   end
