@@ -119,6 +119,20 @@ class ValidateAroundUnrecognizablePresenceTestUseCase
   end
 end
 
+class ValidateAroundPresenceTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :integer_test => { :presence => true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAroundPresenceTestUseCase
   include ActionLogic::ActionUseCase
 

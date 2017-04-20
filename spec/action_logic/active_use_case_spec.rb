@@ -108,6 +108,17 @@ module ActionLogic
         end
       end
 
+      describe "presence with bang" do
+        it "validates presence if presence is specified" do
+          expect { ValidateAroundPresenceTestUseCaseWithBang.execute(:integer_test => 1) }.to_not raise_error
+        end
+
+        it "raises error if context has required key but value is not defined when validation requires presence" do
+          expect { ValidateAroundPresenceTestUseCaseWithBang.execute(:integer_test => nil) }.to\
+            raise_error(ActionLogic::PresenceError)
+        end
+      end
+
       describe "custom presence" do
         it "allows custom presence validation if custom presence is defined" do
           expect { ValidateAroundCustomPresenceTestUseCase.execute(:array_test => [1]) }.to_not raise_error
