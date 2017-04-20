@@ -8,6 +8,7 @@ module ActionLogic
 
     def initialize(params = {})
       params[:status] ||= SUCCESS
+      params[:errors] ||= ActionValidation::Errors.new
       super(params)
     end
 
