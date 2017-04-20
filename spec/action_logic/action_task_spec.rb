@@ -114,6 +114,22 @@ module ActionLogic
             raise_error(ActionLogic::UnrecognizablePresenceValidatorError)
         end
       end
+
+      describe "custom presence with bang" do
+        it "allows custom presence validation if custom presence is defined" do
+          expect { ValidateAroundCustomPresenceTestTaskWithBang.execute(:array_test => [1]) }.to_not raise_error
+        end
+
+        it "raises error if custom presence validation is not satisfied" do
+          expect { ValidateAroundCustomPresenceTestTaskWithBang.execute(:array_test => []) }.to\
+            raise_error(ActionLogic::PresenceError)
+        end
+
+        it "raises error if custom presence validation is not supported" do
+          expect { ValidateAroundUnrecognizablePresenceTestTaskWithBang.execute(:integer_test => 1) }.to\
+            raise_error(ActionLogic::UnrecognizablePresenceValidatorError)
+        end
+      end
     end
 
     describe "before validations" do

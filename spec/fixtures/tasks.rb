@@ -46,6 +46,15 @@ class ValidateAroundCustomTypeTestTask
   end
 end
 
+class ValidateAroundUnrecognizablePresenceTestTaskWithBang
+  include ActionLogic::ActionTask
+
+  validates_around! :integer_test => { :presence => :true }
+
+  def call
+  end
+end
+
 class ValidateAroundUnrecognizablePresenceTestTask
   include ActionLogic::ActionTask
 
@@ -70,6 +79,19 @@ class ValidateAroundPresenceTestTask
   validates_around :integer_test => { :presence => true }
 
   def call
+  end
+end
+
+class ValidateAroundCustomPresenceTestTaskWithBang
+  include ActionLogic::ActionTask
+
+  validates_around! :array_test => { :presence => ->(array_test) { array_test.any? } }
+
+  def call
+  end
+
+  def tasks
+    []
   end
 end
 
