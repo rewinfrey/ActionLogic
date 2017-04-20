@@ -91,6 +91,20 @@ class ValidateAroundCustomTypeTestUseCase
   end
 end
 
+class ValidateAroundCustomTypeTestUseCaseWithBang
+  include ActionLogic::ActionUseCase
+
+  validates_around! :custom_type => { :type => CustomType1, :presence => true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAroundUnrecognizablePresenceTestUseCase
   include ActionLogic::ActionUseCase
 
