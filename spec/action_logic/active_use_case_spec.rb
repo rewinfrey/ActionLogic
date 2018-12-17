@@ -152,6 +152,27 @@ module ActionLogic
             raise_error(ActionLogic::UnrecognizablePresenceValidatorError)
         end
       end
+
+      describe "mixed custom presence and type" do
+        it "allows custom presence validation to be defined without type if a type validation is defined" do
+          expect { ValidateBeforeMixedTypeAndPresenceUseCase.execute(odd_integer_test: 1, string_test: "Test") }.to_not raise_error
+        end
+
+        it "raises error if custom presence validation is not satisfied" do
+          expect { ValidateBeforeMixedTypeAndPresenceUseCase.execute(odd_integer_test: 2, string_test: "Test") }.to \
+            raise_error(ActionLogic::PresenceError)
+        end
+
+        it "raises error if type validation is not satisfied" do
+          expect { ValidateBeforeMixedTypeAndPresenceUseCase.execute(odd_integer_test: 1, string_test: 15) }.to \
+            raise_error(ActionLogic::AttributeTypeError)
+        end
+
+        it "raises error if type presence validation is not satisfied" do
+          expect { ValidateBeforeMixedTypeAndPresenceUseCase.execute(odd_integer_test: 1) }.to \
+            raise_error(ActionLogic::MissingAttributeError)
+        end
+      end
     end
 
     describe "after validations" do

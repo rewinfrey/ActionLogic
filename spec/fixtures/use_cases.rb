@@ -189,6 +189,21 @@ class ValidateBeforeUnrecognizablePresenceTestUseCase
   end
 end
 
+class ValidateBeforeMixedTypeAndPresenceUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_before odd_integer_test: { presence: ->(i) { i % 2 != 0 } },
+                   string_test: { type: String, presence: true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateAfterTestUseCase
   include ActionLogic::ActionUseCase
 

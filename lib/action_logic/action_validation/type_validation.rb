@@ -9,7 +9,7 @@ module ActionLogic
         return unless validation_rules.values.find { |expected_validation| expected_validation[:type] }
 
         type_errors = validation_rules.reduce([]) do |collection, (expected_attribute, expected_validation)|
-          next unless expected_validation[:type]
+          next collection unless expected_validation[:type]
 
           if context.to_h[expected_attribute].class != expected_validation[:type]
             collection << "Attribute: #{expected_attribute} with value: #{context.to_h[expected_attribute]} was expected to be of type #{expected_validation[:type]} but is #{context.to_h[expected_attribute].class}"
