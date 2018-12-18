@@ -17,9 +17,9 @@ Gem::Specification.new do |s|
   s.date = '2018-12-17'
   s.description = 'Provides common interfaces for validating and abstracting business logic'
 
-  s.add_development_dependency("rspec", "~> 3.3")
-  s.add_development_dependency("pry", "~> 0.10")
-  s.add_development_dependency("rake", "~> 10")
-  s.add_development_dependency("simplecov", "~> 0.10.0")
-  s.add_development_dependency("codecov", "~> 0.1")
+  s.add_development_dependency("rspec", "~> 3.8")
+  s.add_development_dependency("pry", "~> 0.12.2")
+  s.add_development_dependency("rake", "~> 12.3")
+  s.add_development_dependency("simplecov", "~> 0.16.1")
+  s.add_development_dependency("codecov", "~> 0.1.14")
 end
