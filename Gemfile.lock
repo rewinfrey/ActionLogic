@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    action_logic (0.2.8)
+    action_logic (0.3.0)
 
 GEM
   remote: https://rubygems.org/
