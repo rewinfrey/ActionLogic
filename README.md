@@ -4,7 +4,6 @@
 [![Gem Version](https://badge.fury.io/rb/action_logic.svg)](https://badge.fury.io/rb/action_logic)
 [![Code Climate](https://codeclimate.com/github/rewinfrey/action_logic/badges/gpa.svg)](https://codeclimate.com/github/rewinfrey/action_logic)
 [![coverage](https://codecov.io/github/rewinfrey/ActionLogic/coverage.svg?branch=master)](https://codecov.io/github/rewinfrey/ActionLogic?branch=master)
-[![Dependency Status](https://gemnasium.com/rewinfrey/action_logic.svg)](https://gemnasium.com/rewinfrey/action_logic)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](http://opensource.org/licenses/MIT)
 
 ### Introduction
