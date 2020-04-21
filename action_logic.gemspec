@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency("rspec", "~> 3.8")
   s.add_development_dependency("pry", "~> 0.12.2")
-  s.add_development_dependency("rake", "~> 12.3")
+  s.add_development_dependency("rake", "~> 12.3.3")
   s.add_development_dependency("simplecov", "~> 0.16.1")
   s.add_development_dependency("codecov", "~> 0.1.14")
 end
