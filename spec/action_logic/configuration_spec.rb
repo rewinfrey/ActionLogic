@@ -63,7 +63,7 @@ describe ActionLogic do
     end
 
     it "uses a custom benchmark handler if one is provided" do
-      custom_benchmark_handler = -> { yield }
+      custom_benchmark_handler = -> { }
 
       described_class.configure do |config|
         config.benchmark_handler = custom_benchmark_handler
