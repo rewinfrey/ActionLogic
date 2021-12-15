@@ -153,7 +153,7 @@ module ActionLogic
     end
 
     describe "before validations" do
-      describe "required attributes and type validation" do
+      describe "required attributes and type validation with bang" do
         it "does not raise error if context has required keys and values are of the correct type" do
           expect { ValidateBeforeTestUseCaseWithBang.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
         end
@@ -168,6 +168,23 @@ module ActionLogic
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
+
+      describe "required attributes and type validation" do
+        it "does not raise error if context has required keys and values are of the correct type" do
+          expect { ValidateBeforeTestUseCase.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
+        end
+
+        it "doesn't raise error if context is missing required keys" do
+          expect { ValidateBeforeTestUseCase.execute() }.to_not\
+            raise_error(ActionLogic::MissingAttributeError)
+        end
+
+        it "raises error if context has required key but is not of correct type" do
+          expect { ValidateBeforeTestUseCase.execute(Constants::INVALID_ATTRIBUTES) }.to_not\
+            raise_error(ActionLogic::AttributeTypeError)
+        end
+      end
+
 
       describe "custom types" do
         it "allows validation against custom defined types" do

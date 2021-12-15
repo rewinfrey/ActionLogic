@@ -189,6 +189,76 @@ class ValidateAroundCustomPresenceTestUseCase
   end
 end
 
+class ValidateBeforeTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_before Constants::ALL_VALIDATIONS
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateBeforePresenceTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_before Constants::PRESENCE_VALIDATION
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateBeforeCustomPresenceTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_before Constants::CUSTOM_PRESENCE_VALIDATION
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateBeforeCustomTypeTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_before Constants::CUSTOM_TYPE_VALIDATION1
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
+class ValidateBeforeUnrecognizablePresenceTestUseCase
+  include ActionLogic::ActionUseCase
+
+  validates_before :integer_test => { :presence => :true }
+
+  def call
+  end
+
+  def tasks
+    [UseCaseTestTask1,
+     UseCaseTestTask2]
+  end
+end
+
 class ValidateBeforeTestUseCaseWithBang
   include ActionLogic::ActionUseCase
 
@@ -248,7 +318,7 @@ end
 class ValidateBeforeUnrecognizablePresenceTestUseCaseWithBang
   include ActionLogic::ActionUseCase
 
-  validates_before! :integer_test => { :presence => :true }
+  validates_before :integer_test => { :presence => :true }
 
   def call
   end

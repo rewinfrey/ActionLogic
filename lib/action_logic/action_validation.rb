@@ -9,6 +9,10 @@ module ActionLogic
         @validates_before = args.merge(raise_action_logic_exception: true)
       end
 
+      def validates_before(args)
+        @validates_before = args.merge(raise_action_logic_exception: false)
+      end
+
       def validates_after(args)
         @validates_after = args.merge(raise_action_logic_exception: true)
       end
