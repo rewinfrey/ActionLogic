@@ -5,7 +5,7 @@ require 'action_logic/action_validation/type_validation'
 module ActionLogic
   module ActionValidation
     module ClassMethods
-      def validates_before(args)
+      def validates_before!(args)
         @validates_before = args.merge(raise_action_logic_exception: true)
       end
 

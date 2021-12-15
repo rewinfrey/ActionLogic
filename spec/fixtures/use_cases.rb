@@ -189,10 +189,10 @@ class ValidateAroundCustomPresenceTestUseCase
   end
 end
 
-class ValidateBeforeTestUseCase
+class ValidateBeforeTestUseCaseWithBang
   include ActionLogic::ActionUseCase
 
-  validates_before Constants::ALL_VALIDATIONS
+  validates_before! Constants::ALL_VALIDATIONS
 
   def call
   end
@@ -203,10 +203,10 @@ class ValidateBeforeTestUseCase
   end
 end
 
-class ValidateBeforePresenceTestUseCase
+class ValidateBeforePresenceTestUseCaseWithBang
   include ActionLogic::ActionUseCase
 
-  validates_before Constants::PRESENCE_VALIDATION
+  validates_before! Constants::PRESENCE_VALIDATION
 
   def call
   end
@@ -217,10 +217,10 @@ class ValidateBeforePresenceTestUseCase
   end
 end
 
-class ValidateBeforeCustomPresenceTestUseCase
+class ValidateBeforeCustomPresenceTestUseCaseWithBang
   include ActionLogic::ActionUseCase
 
-  validates_before Constants::CUSTOM_PRESENCE_VALIDATION
+  validates_before! Constants::CUSTOM_PRESENCE_VALIDATION
 
   def call
   end
@@ -231,10 +231,10 @@ class ValidateBeforeCustomPresenceTestUseCase
   end
 end
 
-class ValidateBeforeCustomTypeTestUseCase
+class ValidateBeforeCustomTypeTestUseCaseWithBang
   include ActionLogic::ActionUseCase
 
-  validates_before Constants::CUSTOM_TYPE_VALIDATION1
+  validates_before! Constants::CUSTOM_TYPE_VALIDATION1
 
   def call
   end
@@ -245,10 +245,10 @@ class ValidateBeforeCustomTypeTestUseCase
   end
 end
 
-class ValidateBeforeUnrecognizablePresenceTestUseCase
+class ValidateBeforeUnrecognizablePresenceTestUseCaseWithBang
   include ActionLogic::ActionUseCase
 
-  validates_before :integer_test => { :presence => :true }
+  validates_before! :integer_test => { :presence => :true }
 
   def call
   end

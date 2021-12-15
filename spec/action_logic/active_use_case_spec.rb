@@ -155,54 +155,54 @@ module ActionLogic
     describe "before validations" do
       describe "required attributes and type validation" do
         it "does not raise error if context has required keys and values are of the correct type" do
-          expect { ValidateBeforeTestUseCase.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
+          expect { ValidateBeforeTestUseCaseWithBang.execute(Constants::VALID_ATTRIBUTES) }.to_not raise_error
         end
 
         it "raises error if context is missing required keys" do
-          expect { ValidateBeforeTestUseCase.execute() }.to\
+          expect { ValidateBeforeTestUseCaseWithBang.execute() }.to\
             raise_error(ActionLogic::MissingAttributeError)
         end
 
         it "raises error if context has required key but is not of correct type" do
-          expect { ValidateBeforeTestUseCase.execute(Constants::INVALID_ATTRIBUTES) }.to\
+          expect { ValidateBeforeTestUseCaseWithBang.execute(Constants::INVALID_ATTRIBUTES) }.to\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
 
       describe "custom types" do
         it "allows validation against custom defined types" do
-          expect { ValidateBeforeCustomTypeTestUseCase.execute(Constants::CUSTOM_TYPE_ATTRIBUTES1) }.to_not raise_error
+          expect { ValidateBeforeCustomTypeTestUseCaseWithBang.execute(Constants::CUSTOM_TYPE_ATTRIBUTES1) }.to_not raise_error
         end
 
         it "raises error if context has custom type attribute but value is not correct custom type" do
-          expect { ValidateBeforeCustomTypeTestUseCase.execute(Constants::CUSTOM_TYPE_ATTRIBUTES2) }.to\
+          expect { ValidateBeforeCustomTypeTestUseCaseWithBang.execute(Constants::CUSTOM_TYPE_ATTRIBUTES2) }.to\
             raise_error(ActionLogic::AttributeTypeError)
         end
       end
 
       describe "presence" do
         it "validates presence if presence is specified" do
-          expect { ValidateBeforePresenceTestUseCase.execute(:integer_test => 1) }.to_not raise_error
+          expect { ValidateBeforePresenceTestUseCaseWithBang.execute(:integer_test => 1) }.to_not raise_error
         end
 
         it "raises error if context has required key but value is not defined when validation requires presence" do
-          expect { ValidateBeforePresenceTestUseCase.execute(:integer_test => nil) }.to\
+          expect { ValidateBeforePresenceTestUseCaseWithBang.execute(:integer_test => nil) }.to\
             raise_error(ActionLogic::PresenceError)
         end
       end
 
       describe "custom presence" do
         it "allows custom presence validation if custom presence is defined" do
-          expect { ValidateBeforeCustomPresenceTestUseCase.execute(:array_test => [1]) }.to_not raise_error
+          expect { ValidateBeforeCustomPresenceTestUseCaseWithBang.execute(:array_test => [1]) }.to_not raise_error
         end
 
         it "raises error if custom presence validation is not satisfied" do
-          expect { ValidateBeforeCustomPresenceTestUseCase.execute(:array_test => []) }.to\
+          expect { ValidateBeforeCustomPresenceTestUseCaseWithBang.execute(:array_test => []) }.to\
             raise_error(ActionLogic::PresenceError)
         end
 
         it "raises error if custom presence validation is not supported" do
-          expect { ValidateBeforeUnrecognizablePresenceTestUseCase.execute(:integer_test => 1) }.to\
+          expect { ValidateBeforeUnrecognizablePresenceTestUseCaseWithBang.execute(:integer_test => 1) }.to\
             raise_error(ActionLogic::UnrecognizablePresenceValidatorError)
         end
       end
