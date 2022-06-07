@@ -192,8 +192,8 @@ end
 class ValidateBeforeMixedTypeAndPresenceUseCase
   include ActionLogic::ActionUseCase
 
-  validates_before odd_integer_test: { presence: ->(i) { i % 2 != 0 } },
-                   string_test: { type: String, presence: true }
+  validates_before odd_integer_test: { type: Integer, presence: ->(i) { i % 2 != 0 }, type: Integer },
+                   string_test: { presence: false, type: String }
 
   def call
   end
