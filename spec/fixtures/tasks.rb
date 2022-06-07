@@ -284,4 +284,44 @@ class HaltTestTask
     context.halt!(Constants::HALT_MESSAGE)
   end
 end
+
+class UseCaseTestTask1
+  include ActionLogic::ActionTask
+
+  def call
+    context.first = "first"
+  end
+end
+
+class UseCaseTestTask2
+  include ActionLogic::ActionTask
+
+  def call
+    context.second = "second"
+  end
+end
+
+class UseCaseTestTask3
+  include ActionLogic::ActionTask
+
+  def call
+    context.third = "third"
+  end
+end
+
+class UseCaseFailureTestTask
+  include ActionLogic::ActionTask
+
+  def call
+    context.fail!(Constants::FAILURE_MESSAGE)
+  end
+end
+
+class UseCaseHaltTestTask
+  include ActionLogic::ActionTask
+
+  def call
+    context.halt!(Constants::HALT_MESSAGE)
+  end
+end
 # :nocov:
