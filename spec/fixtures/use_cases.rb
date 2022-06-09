@@ -192,8 +192,8 @@ end
 class ValidateBeforeMixedTypeAndPresenceUseCase
   include ActionLogic::ActionUseCase
 
-  validates_before odd_integer_test: { presence: ->(i) { i % 2 != 0 } },
-                   string_test: { type: String, presence: true }
+  validates_before odd_integer_test: { type: Integer, presence: ->(i) { i % 2 != 0 }, type: Integer },
+                   string_test: { presence: false, type: String }
 
   def call
   end
@@ -390,46 +390,6 @@ class HaltTestUseCase
      UseCaseTestTask2,
      UseCaseHaltTestTask,
      UseCaseTestTask3]
-  end
-end
-
-class UseCaseTestTask1
-  include ActionLogic::ActionTask
-
-  def call
-    context.first = "first"
-  end
-end
-
-class UseCaseTestTask2
-  include ActionLogic::ActionTask
-
-  def call
-    context.second = "second"
-  end
-end
-
-class UseCaseTestTask3
-  include ActionLogic::ActionTask
-
-  def call
-    context.third = "third"
-  end
-end
-
-class UseCaseFailureTestTask
-  include ActionLogic::ActionTask
-
-  def call
-    context.fail!(Constants::FAILURE_MESSAGE)
-  end
-end
-
-class UseCaseHaltTestTask
-  include ActionLogic::ActionTask
-
-  def call
-    context.halt!(Constants::HALT_MESSAGE)
   end
 end
 # :nocov:

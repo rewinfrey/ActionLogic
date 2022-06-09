@@ -14,9 +14,8 @@ module ActionLogic
       def self.presence_errors(validation_rules, context)
         validation_rules.reduce([]) do |error_collection, (expected_attribute, expected_validation)|
           next error_collection unless expected_validation[:presence]
-            error_collection << error_message(expected_attribute, expected_validation, context)
-            error_collection
-          end
+          error_collection << error_message(expected_attribute, expected_validation, context)
+          error_collection
         end || []
       end
 

@@ -58,12 +58,11 @@ includes an item that your e-commerce store no longer stocks? What happens if an
 you add more and more logic to that controller action.
 
 What once was a simple controller action designed with only the happy path of a successful checkout in mind has now become 100 lines long with 5 to 10 levels
-of nested if statements. The voice of Uncle Bob starts ringing in your ears and you know there must be a better way. You think on it for awhile and consider not only
-the technical challenges of refactoring this code, but you'd also like to make this code reusable and modular. You want this code to be easy to test and easy to maintain.
-You want to honor the SOLID principles by writing classes that are singularly focused and easy to extend. You reason these new classes should only have to change if the
-business logic they execute changes. You see that there are relationships between the entities and you see the possibility of abstractions that allow entities of similar types
-to interact nicely with each other. You begin thinking about interfaces and the Liskov Substitution Principle, and eventually your mind turns towards domains and data modeling.
-Where does it end you wonder?
+of nested if statements.  You think on it for awhile and consider not only the technical challenges of refactoring this code, but you'd also like to make this code
+reusable and modular. You want this code to be easy to test and easy to maintain. You want to honor the SOLID principles by writing classes that are singularly focused
+and easy to extend. You reason these new classes should only have to change if the business logic they execute changes. You see that there are relationships between the
+entities and you see the possibility of abstractions that allow entities of similar types to interact nicely with each other. You begin thinking about interfaces and the
+Liskov Substitution Principle, and eventually your mind turns towards domains and data modeling. Where does it end you wonder?
 
 But you remember your team. It's a team of people all wanting to do their best, and represent a variety of backgrounds and experiences. Each person has varying degress of familiarity
 with different types of abstractions and approaches, and you wonder what abstractions might be as easy to work with for a new developer as they are for an experienced developer?

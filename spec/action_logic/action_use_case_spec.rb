@@ -164,7 +164,7 @@ module ActionLogic
         end
 
         it "raises error if type validation is not satisfied" do
-          expect { ValidateBeforeMixedTypeAndPresenceUseCase.execute(odd_integer_test: 1, string_test: 15) }.to \
+          expect { ValidateBeforeMixedTypeAndPresenceUseCase.execute(odd_integer_test: "String", string_test: 15) }.to \
             raise_error(ActionLogic::AttributeTypeError)
         end
 
